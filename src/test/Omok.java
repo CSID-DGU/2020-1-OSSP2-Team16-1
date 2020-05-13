@@ -266,8 +266,6 @@ class OmokState {
 	}
 	
 	
-	
-	
 }
 class OmokPanel extends JPanel
 {
