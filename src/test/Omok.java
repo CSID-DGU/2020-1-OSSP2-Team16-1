@@ -85,7 +85,7 @@ class MenuLine extends JMenuBar implements ActionListener {
 		if(e.getSource() == exitGame) System.exit(0);
 		else if(e.getSource() == localMode)
 		{
-			
+			System.out.println("not yet...");
 		}
 	}
 
