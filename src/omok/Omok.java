@@ -1,4 +1,4 @@
-package test;
+package omok;
 
 import java.io.File;
 import java.io.IOException;
