@@ -15,18 +15,18 @@ import javax.sound.sampled.Clip;
 
 
 /**
- * <code>���� ����</code> - �Ϲݷ�(�����)�� �̿��ϴ� ������ �� ����.
+ * * <code>오목 게임</code> - 일반룰(오목룰)을 이용하는 오목판 및 게임.
  * https://namu.wiki/w/%EC%98%A4%EB%AA%A9(%EA%B2%8C%EC%9E%84)
  *
- * ����: Ŀ�ǵ���ο��� java Omok [<�� ũ��>]
- * @author ����
+ * 사용법: 커맨드라인에서 java Omok [<판 크기>]
+ * @author 꿀쥐
  * @version 1.0
  */
 public class Omok
 {
     /**
-     * <code>����</code> - �������� �ʱ�ȭ
-     * �� ũ��� �⺻������ 15���� Ŀ�ǵ���ο��� ������ �� ������ �� �ִ�.
+     * <code>메인</code> - 오목판을 초기화
+     * 판 크기는 기본적으로 15지만 커맨드라인에서 실행할 때 설정할 수 있다.
      *
      * @param args a <code>String[]</code> value - command line
      * arguments
@@ -112,15 +112,15 @@ class OmokState {
 		System.out.println("Try Place at row,column " + row +","+ col+" as Player"+currentPlayer);
 		if (validMove(row, col))
 			board[row][col] = currentPlayer;
-		else{// ���⿡ �Ѽ� ���ٰ� ����� �߸� -> ���� �ϳ��� �߰� �ؼ� currentPlayer - Switch�� false�� �ǵ���
-			JOptionPane.showMessageDialog(null, "���⿡ �� �� �����ϴ�.");
+		else{// 여기에 둘수 없다고 명령이 뜨면 -> 변수 하나를 추가 해서 currentPlayer - Switch가 false가 되도록
+			JOptionPane.showMessageDialog(null, "여기에 둘 수 없습니다.");
 			isSwitchOK = false;
 		}
 		switch (currentPlayer) {	
 		
 		case BLACK:
 			if (isSwitchOK)
-			currentPlayer = WHITE;		// ���� �÷��̸� �����ϴ� ���.
+				currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
 			isSwitchOK= true;
 			break;
 		case WHITE:
@@ -140,29 +140,29 @@ class OmokState {
 	}
 	
 	public boolean validMove(int row, int col) {
-		// 	validMove�� 	false�� ���⿡ �� �� ���ٴ� message�� ����Ѵ�.
-		// 				true�� ����		
+		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
+		// 				true면 진행		
 		int r = row, c = col;
 		/*
 		 * step
-		 * ����: 0(��), 1(��)
-		 * ����: 2(��), 3(��)
-		 * �缱: 4(����), 5(����), 6(����), 7(����)
+		 * 수직: 0(북), 1(남)
+		 * 수평: 2(동), 3(서)
+		 * 사선: 4(동북), 5(서남), 6(서북), 7(동남)
 		 */
 		int step = 0;
-		int[] stepCount = new int[8];	// ������ �����ϴ� ��� ������(8����) �˻��ϴ� �迭
+		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
 		boolean doneCheck = false;
 		while (!doneCheck) {
 
 			switch (step) {
-			// if�������� step�� ���캼 ������ �����ϸ�, r�� c�� �����ϸ鼭 ���������� ���캸�� ������ ���� ������ stepCount�� ����� ����.
-			// else�������� step�� ���� �ܰ�� �����ϸ�, r�� c�� �ʱ� row������ �ǵ��� ���´�.
-			// ����. �浹�� ���� �ڸ� ���� �浹�� ��, �Ʒ��� �浹�� �ϳ� ������ case0�� Ž�� ���� = �ʱ�ȭ �ѹ�, case1�� Ž�� 1�� �ʱ�ȭ 
-			//													�Ǿ�� �ϴµ�.... if�� �Ʒ��� ���� ���� �ʴ´�.
+			// if문에서는 step이 살펴볼 방향을 지정하며, r과 c를 수정하면서 순차적으로 살펴보며 놓여진 돌의 갯수를 stepCount의 결과를 낸다.
+			// else문에서는 step을 다음 단계로 지정하며, r와 c를 초기 row값으로 되돌려 놓는다.
+			// 예시. 흑돌이 놓은 자리 위에 흑돌이 셋, 아래에 흑돌이 하나 있으면 case0는 탐색 세번 = 초기화 한번, case1은 탐색 1번 초기화 
+			//													되어야 하는데.... if문 아래로 전혀 들어가지 않는다.
 			case 0:
-				if (!outOfBounds(r-1) && sameColor(--r, c))	//���� �� r--? ������ �� ���ű� ������ --- case 0�� ������ ȣ��ȴ�.
-					stepCount[step]++;						// if�� ������ ���� �ʱ� ������ stepCount�� ���� ���� �ʴ´� - ���ǹ��� ���� Ȯ��.
-				else { step++; r = row; c = col; }			// ���� �ذ�: �� ���ǹ� �Լ����� �̻�X. �μ��� ���캽 --- �̻� �߰�
+				if (!outOfBounds(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
+					stepCount[step]++;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
+				else { step++; r = row; c = col; }			// 문제 해결: 두 조건문 함수에는 이상X. 인수를 살펴봄 --- 이상 발견
 				break;
 			case 1:
 				if (!outOfBounds(r+1) && sameColor(++r, c))
@@ -204,8 +204,8 @@ class OmokState {
 				break;
 			}
 		}
-		// moveResult�� ���ڸ� �����ϸ� 0�� return, �������� �ʾҴٸ� 1�� 2�� return
-		// 1�� 2��? 2�� ������ ���. 1�� ???
+		// moveResult는 승자를 결정하면 0을 return, 결정되지 않았다면 1과 2를 return
+		// 1과 2는? 2는 육목일 경우. 1은 ???
 		int result = moveResult(stepCount);
 		
 		if (result == 0) winner = currentPlayer;
@@ -216,41 +216,41 @@ class OmokState {
 		return true;
 	}
 	
-	// switch case������ stepCount[]�� �����ֱ� ���� ���� �Լ� 2��
+	// switch case문에서 stepCount[]를 더해주기 위한 조건 함수 2개
 	public boolean outOfBounds(int n) {
-		// �Լ� ���� �̻� ��
+		// 함수 내부 이상 무
 		return !(n >= 0 && n < size);
 	}
 	
 	public boolean sameColor(int r, int c) {
-		// �Լ� ���� �̻� ��
+		// 함수 내부 이상 무
 		return board[r][c] == currentPlayer;
 	}
 	
 	
 	/*
-	 * �̱�� ��(5): 0
-	 * �ݼ�(33 Ȥ�� 44): 1
-	 * ���(6�̻�): 2
-	 * ��: 3
+	 * 이기는 수(5): 0
+	 * 금수(33 혹은 44): 1
+	 * 장목(6이상): 2
+	 * 수: 3
 	 */
-	public int moveResult(int[] stepCount) {	// return���� 1,2�� false, 0�̸� ���� ����.
+	public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
 		final int checkBugOn33 = 0;
 		final int checkBugOn44 = 1;
 		int countTwo = 0, countThree = 0;
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-			// 1. moveResult 2 Ȥ�� 0�� �����ϴ� if-else
+			// 1. moveResult 2 혹은 0을 결정하는 if-else
 			if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] > 5-1)) 
 								// sc[0] + sc[1] > 5, sc[3] + sc[4] > 6 .... 
-								// -> ��+���� 6,7,8,... ��+���� 6,7,8... �̷���� = 6�� �϶� 
-				return 2;		// 6��, 7�� 
+								// -> 북+남이 6,7,8,... 동+서가 6,7,8... 이런경우 = 6목 일때 
+				return 2;		// 6목, 7목 
 			else 
 				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
-								// �� + �� = 5, �� + �� = 5, 
+								// 북 + 남 = 5, 동 + 서 = 5, 
 					win = true;
 			
-			// moveresult 1�� �����ϴ� if-else
+			// moveresult 1을 결정하는 if-else
 			if (stepCount[i] == 2-1) 
 				countTwo++;
 			else
@@ -258,7 +258,7 @@ class OmokState {
 					countThree++;
 		}
 		
-		// �Ʒ��� return���� �����ϴ� if����
+		// 아래는 return값을 결정하는 if문들
 		if (countTwo >= 2-checkBugOn33 || countThree >= 2-checkBugOn44)
 			return 1;
 		if (win)
