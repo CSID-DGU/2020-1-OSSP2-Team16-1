@@ -235,7 +235,7 @@ class OmokState {
 	 * 수: 3
 	 */
 	public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
-		final int checkBugOn33 = 0;
+		final int checkBugOn33 = 1;
 		final int checkBugOn44 = 1;
 		int countTwo = 0, countThree = 0;
 		boolean win = false;
@@ -251,15 +251,15 @@ class OmokState {
 					win = true;
 			
 			// moveresult 1을 결정하는 if-else
-			if (stepCount[i] == 2-1) 
+			if (stepCount[i] == 2 - checkBugOn33) 
 				countTwo++;
 			else
-				if (stepCount[i] == 3-1) 
+				if (stepCount[i] == 3 - checkBugOn44) 
 					countThree++;
 		}
 		
 		// 아래는 return값을 결정하는 if문들
-		if (countTwo >= 2-checkBugOn33 || countThree >= 2-checkBugOn44)
+		if (countTwo >= 2 || countThree >= 2)
 			return 1;
 		if (win)
 			return 0;
