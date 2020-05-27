@@ -237,7 +237,7 @@ class OmokState {
 		 */
 		int step = 0;
 		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
-		boolean [] oponnentAtEnd = new boolean [8];
+		boolean [] opponentAtEnd = new boolean [8];
 		boolean [] skip = new boolean[8];
 		boolean doneCheck = false;
 		while (!doneCheck) {			// while(step<8)
@@ -251,7 +251,7 @@ class OmokState {
 				else {
 					// 진행이 끊겼을 때
 					if(differentColor(r,c)) { // 상대가 막아서 끊겼니? 
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) { // 그냥 비어서 끊겼니?
 						if (r == row -1) {// 그것도 바로 다음에 끊겼니?
@@ -267,7 +267,7 @@ class OmokState {
 					stepCount[step]++;
 				else {
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (r == row +1) {
@@ -283,7 +283,7 @@ class OmokState {
 					stepCount[step]++;
 				else {
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (c == col+1){
@@ -298,7 +298,7 @@ class OmokState {
 					stepCount[step]++;
 				else {
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (c == col-1){
@@ -313,7 +313,7 @@ class OmokState {
 					stepCount[step]++;
 				else {
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row-1){
@@ -328,7 +328,7 @@ class OmokState {
 					stepCount[step]++;
 				else { 
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row+1) {
@@ -343,7 +343,7 @@ class OmokState {
 					stepCount[step]++;
 				else { 
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row-1) {
@@ -359,7 +359,7 @@ class OmokState {
 					stepCount[step]++;
 				else  { 
 					if(differentColor(r,c)) {
-					oponnentAtEnd[step] = true;
+					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row+1) {
@@ -377,7 +377,7 @@ class OmokState {
 		}
 		// moveResult는 승자를 결정하면 0을 return, 결정되지 않았다면 1과 2를 return
 		// 1과 2는? 2는 육목일 경우. 1은 ???
-		int result = moveResult(stepCount);
+		int result = moveResult_FIX(stepCount,opponentAtEnd,skip);
 		
 		if (result == 0) winner = currentPlayer;
 		
@@ -392,41 +392,58 @@ class OmokState {
 		return true;
 	}
 	
-	public int moveResult_FIX(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
-		final int stepCountLimit33 = 2;
-		final int stepCountLimit44 = 3;
-		final int count2Limit = 2;
-		final int count3Limit = 2;
+	public int moveResult_FIX(int[] stepCount,boolean enemyAtEnd[], boolean skip[]) {	// return값이 1,2면 false, 0이면 승자 결정.
 		
-		int countTwo = 0, countThree = 0;
-		boolean win = false;
+		// 금수는 총 네개로,  oxo, xoo, oxoo, x_oo가 있다.
+		// 이 때, 금수의 끝이 막혔는지는 enemyAtEnd가 false일 때 뚫렸음을 의미한다.
+		// skip은 네번째 금수를 위한 boolean형 변수로, x_oo의 _부분을 의미한다.
+		int [] forbiddenCases = new int [4];
+		// 마지막에 계산할 때, forbiddenCases의 초
+		
 		for (int i=0; i<8; i++) {
-			// 1. moveResult 2 혹은 0을 결정하는 if-else
-			if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] > 5-1)) 
-								// sc[0] + sc[1] > 5, sc[3] + sc[4] > 6 .... 
-								// -> 북+남이 6,7,8,... 동+서가 6,7,8... 이런경우 = 6목 일때 
-				return 2;		// 6목, 7목 
-			else 
-				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
-								// 북 + 남 = 5, 동 + 서 = 5, 
-					win = true;
+			// 
+			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 1)) // 첫번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[0]++;
+			}
+
+			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 두번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[1]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 두번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[1]++;
+			}
 			
-			// moveresult 1을 결정하는 if-else
-			if (stepCount[i] == stepCountLimit33) 
-				countTwo++;
-			else
-				if (stepCount[i] == stepCountLimit44) {
-					countThree++;
-					//countTwo--;
-					}
+			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 2)) // 세번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[2]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 1)) // 세번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[2]++;
+			}
+
+			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 네번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&skip[i]) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
+					forbiddenCases[3]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 네번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]&&!skip[i]) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
+					forbiddenCases[3]++;
+			}
+			
+			
 		}
-		
-		// 아래는 return값을 결정하는 if문들
-		if (countTwo >= count2Limit || countThree >= count3Limit)
-			return 1;
-		if (win)
-			return 0;
-		return 3;
+		return 0;
 	}
 	
 	public boolean sameColor(int r, int c) {
