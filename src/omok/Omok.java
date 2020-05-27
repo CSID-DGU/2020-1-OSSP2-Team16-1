@@ -210,9 +210,14 @@ class OmokState {
 		
 		if (result == 0) winner = currentPlayer;
 		
-		if (result == 1 || result == 2)
+		if (result == 1 || result == 2) {
+			if(currentPlayer == WHITE) {
+//				winner = currentPlayer;
+				return true;
+			}
 			return false;
-		
+			
+		}
 		return true;
 	}
 	
@@ -235,8 +240,8 @@ class OmokState {
 	 * 수: 3
 	 */
 	public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
-		final int stepCountLimit33 = 1;
-		final int stepCountLimit44 = 2;
+		final int stepCountLimit33 = 2;
+		final int stepCountLimit44 = 3;
 		final int count2Limit = 2;
 		final int count3Limit = 2;
 		
