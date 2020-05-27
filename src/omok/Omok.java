@@ -253,9 +253,11 @@ class OmokState {
 					if(differentColor(r,c)) { // 상대가 막아서 끊겼니? 
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {// 상대가 막지도않았고, 다음이 내 색도 아니고 -> 빈칸
-						if (r == row -1) // 바로 다음에 끊겼으면 
+					if(empty(r,c)) { // 그냥 비어서 끊겼니?
+						if (r == row -1) {// 그것도 바로 다음에 끊겼니?
 							skip[step] = true;
+							continue;
+						}
 					}	
 					step++; r = row; c = col; // in else: toTheNextStep - set r and c as first state
 					}			
@@ -267,10 +269,12 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (r == row +1) 
+					if(empty(r,c)) {
+						if (r == row +1) {
 							skip[step] = true;
-						
+							continue;
+						}
+							
 					}
 					 step++; r = row; c = col; }
 				break;
@@ -281,9 +285,11 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (c == col+1) 
-							skip[step] = true;	
+					if(empty(r,c)) {
+						if (c == col+1){
+							skip[step] = true;
+							continue;
+						}
 					}
 					 step++; r = row; c = col; }
 				break;
@@ -294,9 +300,11 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (c == col-1) 
-							skip[step] = true;	
+					if(empty(r,c)) {
+						if (c == col-1){
+							skip[step] = true;
+							continue;
+						}
 					}
 					 step++; r = row; c = col; }
 				break;
@@ -307,9 +315,11 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (c == col+1 && r == row-1) 
-							skip[step] = true;	
+					if(empty(r,c)) {
+						if (c == col+1 && r == row-1){
+							skip[step] = true;
+							continue;
+						}
 					}
 					 step++; r = row; c = col; }
 				break;
@@ -320,9 +330,11 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (c == col-1 && r == row+1) 
-							skip[step] = true;	
+					if(empty(r,c)) {
+						if (c == col-1 && r == row+1) {
+							skip[step] = true;
+							continue;
+						}
 					}
 					step++; r = row; c = col; }
 				break;
@@ -333,9 +345,11 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (c == col-1 && r == row-1) 
-							skip[step] = true;	
+					if(empty(r,c)) {
+						if (c == col-1 && r == row-1) {
+							skip[step] = true;
+							continue;
+						}
 					}
 					step++; r = row; c = col;
 					}
@@ -347,9 +361,11 @@ class OmokState {
 					if(differentColor(r,c)) {
 					oponnentAtEnd[step] = true;
 					}
-					if(!differentColor(r,c) && !sameColor(r,c)) {
-						if (c == col+1 && r == row+1) 
-							skip[step] = true;	
+					if(empty(r,c)) {
+						if (c == col+1 && r == row+1) {
+							skip[step] = true;
+							continue;
+						}
 					}
 					step++; r = row; c = col;
 					}
@@ -418,6 +434,9 @@ class OmokState {
 		return board[r][c] == currentPlayer;
 	}
 	
+	public boolean empty(int r,int c) {
+		return board[r][c] == 0;
+	}
 	public boolean differentColor(int r, int c) {
 		// 함수 내부 이상 무
 		if(currentPlayer == BLACK)
