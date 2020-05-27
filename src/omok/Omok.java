@@ -273,10 +273,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (r == row +1) {
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 							
 					}
@@ -291,10 +291,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1){
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 					}
 					 step++; r = row; c = col; }
@@ -308,10 +308,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1){
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 					}
 					 step++; r = row; c = col; }
@@ -325,10 +325,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row-1){
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 					}
 					 step++; r = row; c = col; }
@@ -342,10 +342,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row+1) {
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 					}
 					step++; r = row; c = col; }
@@ -359,10 +359,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row-1) {
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 					}
 					step++; r = row; c = col;
@@ -377,10 +377,10 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row+1) {
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
 						}
 					}
 					step++; r = row; c = col;
