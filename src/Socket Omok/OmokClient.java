@@ -20,7 +20,8 @@ public class OmokClient extends JFrame implements Runnable{
     private BufferedReader reader;                         // 입력 스트림
 	private PrintWriter writer;                               // 출력 스트림
 
-	private Socket socket;    
+	private Socket socket;
+	private static int mode;
 	static int size = 15;
 	static OmokPanel panel = new OmokPanel(size);
 	private OmokState state = new OmokState(15);
@@ -36,11 +37,12 @@ public class OmokClient extends JFrame implements Runnable{
 	final int FRAME_HEIGHT = 650;
 
 
-    OmokClient client=new OmokClient("네트워크 오목 게임");
+    OmokClient client=new OmokClient("Omok");
+  
 
     client.setSize(FRAME_WIDTH, FRAME_HEIGHT+30);
     client.connect();   
-    
+
 	
 	MenuLine modeMenu = new MenuLine();
     infoView.setBounds(0,0,FRAME_WIDTH,30);
@@ -55,7 +57,7 @@ public class OmokClient extends JFrame implements Runnable{
 
 	public OmokClient(String title){                       // 생성자
 	    super(title);
-	    addWindowListener(new WindowAdapter(){
+	    addWindowListener(new WindowAdapter(){	    	
 	        public void windowClosing(WindowEvent we){
 	        	System.exit(0);
 	        }    
@@ -68,7 +70,7 @@ public class OmokClient extends JFrame implements Runnable{
 
 	        System.out.println("서버에 연결을 요청합니다.\n");
 
-	        socket=new Socket("127.0.0.1", 7777);
+	        socket=new Socket("", 7777);
 	        //192.168.219.100
 	        infoView.setText("연결 성공!");
 	        System.out.println("---연결 성공--.\n");
@@ -92,9 +94,8 @@ public class OmokClient extends JFrame implements Runnable{
 	public void run() {
 		// TODO Auto-generated method stub
 		String msg;                             // 서버로부터의 메시지
-
+		String my_color = null;
 	    try{
-
 	    while((msg=reader.readLine())!=null){
 	   
 	        if(msg.startsWith("[STONE]")){     // 상대편이 놓은 돌의 좌표
@@ -107,23 +108,36 @@ public class OmokClient extends JFrame implements Runnable{
 
 	        	panel.state.putOpponent(x, y);     // 상대편의 돌을 그린다.
 	        	panel.repaint();
-	        	panel.state.setEnable(true);        // 사용자가 돌을 놓을 수 있도록 한다.
-	        }else if(msg.startsWith("[COLOR]")){          // 돌의 색을 부여받는다.
+	        	panel.state.setEnable(true);        // 사용자가 돌을 놓을 수 있도록 한다.	        	
+	        }
+	        else if(msg.startsWith("[COLOR]")){          // 돌의 색을 부여받는다.
 
 	            String color=msg.substring(7);
 	            infoView.setText(color);
 	            panel.state.startGame(color);                     // 게임을 시작한다.
 	            
-	            if(color.equals("BLACK"))
-	            	
-	              infoView.setText("흑돌을 잡았습니다.");
-
+	            if(color.equals("BLACK")) {	            	
+	            	infoView.setText("흑돌을 잡았습니다.");
+	            	my_color = "Black";
+	            	}
 	            else
-
-	              infoView.setText("백돌을 잡았습니다.");
-
-	          }
-
+	            {
+	            	infoView.setText("백돌을 잡았습니다.");
+	            	my_color = "White";
+	            }
+	        }
+	        else if(msg.startsWith("[FULL]")){    
+	            	JOptionPane.showMessageDialog(null, 
+							"이미 게임중입니다.", "Message", 
+							JOptionPane.ERROR_MESSAGE); 
+	            	System.exit(0);	            	
+	        }
+	        else if(msg.startsWith("[DISCONNECT]")){              
+	        	  infoView.setText("상대가 나갔습니다. 승리!");
+	        	  JOptionPane.showMessageDialog(null, my_color+" wins!" );
+	        	  panel.state.setEnable(false); 			    		
+	        	  panel.state.reset();
+	        }
 	    }   
 	    }catch(IOException ie){}
 	}
