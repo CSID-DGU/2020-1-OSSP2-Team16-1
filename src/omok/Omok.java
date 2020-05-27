@@ -467,6 +467,9 @@ class OmokState {
 		if(caseSum>1) {
 			return 1;
 		}
+		if(moveResultWin(stepCount) == 0) {
+			winner = currentPlayer;
+		}
 		return 3;
 	}
 	
@@ -502,38 +505,15 @@ class OmokState {
 	 * 장목(6이상): 2
 	 * 수: 3
 	 */
-	public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
-		final int stepCountLimit33 = 2;
-		final int stepCountLimit44 = 3;
-		final int count2Limit = 2;
-		final int count3Limit = 2;
-		
-		int countTwo = 0, countThree = 0;
+	public int moveResultWin(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
+
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-			// 1. moveResult 2 혹은 0을 결정하는 if-else
-			if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] > 5-1)) 
-								// sc[0] + sc[1] > 5, sc[3] + sc[4] > 6 .... 
-								// -> 북+남이 6,7,8,... 동+서가 6,7,8... 이런경우 = 6목 일때 
-				return 2;		// 6목, 7목 
-			else 
 				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
 								// 북 + 남 = 5, 동 + 서 = 5, 
 					win = true;
-			
-			// moveresult 1을 결정하는 if-else
-			if (stepCount[i] == stepCountLimit33) 
-				countTwo++;
-			else
-				if (stepCount[i] == stepCountLimit44) {
-					countThree++;
-					//countTwo--;
-					}
 		}
 		
-		// 아래는 return값을 결정하는 if문들
-		if (countTwo >= count2Limit || countThree >= count3Limit)
-			return 1;
 		if (win)
 			return 0;
 		return 3;
