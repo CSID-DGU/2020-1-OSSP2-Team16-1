@@ -102,7 +102,6 @@ class MenuLine extends JMenuBar implements ActionListener {
 		else if(e.getSource() == multiMode)
 		{
 			OmokClient.infoView.setText("멀티모드");
-			state.mode = 2;
 			client.connect();
 			OmokClient.infoView.setText("모드:"+state.mode);
 		}
