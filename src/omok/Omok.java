@@ -142,6 +142,7 @@ class OmokState {
 	public boolean validMove(int row, int col) {
 		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
 		// 				true면 진행		
+		final int NORTH = 0, SOUTH =1, EAST = 2, WEST = 3, NORTH_EAST = 4, SOUTH_WEST = 5, NORTH_WEST = 6, SOUTH_EAST = 7;
 		int r = row, c = col;
 		/*
 		 * step
@@ -159,42 +160,42 @@ class OmokState {
 			// else문에서는 step을 다음 단계로 지정하며, r와 c를 초기 row값으로 되돌려 놓는다.
 			// 예시. 흑돌이 놓은 자리 위에 흑돌이 셋, 아래에 흑돌이 하나 있으면 case0는 탐색 세번 = 초기화 한번, case1은 탐색 1번 초기화 
 			//													되어야 하는데.... if문 아래로 전혀 들어가지 않는다.
-			case 0:
-				if (!outOfBounds(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
-					stepCount[step]++;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
-				else { step++; r = row; c = col; }			// 문제 해결: 두 조건문 함수에는 이상X. 인수를 살펴봄 --- 이상 발견
+			case NORTH:
+				if (!outOfBounds(r-1) && sameColor(--r, c))	// 0 0 0 0 / 1 2 3 4 5 6 6/ 7 
+					stepCount[step]++;						// 
+				else { step++; r = row; c = col; }			// 
 				break;
-			case 1:
+			case SOUTH:
 				if (!outOfBounds(r+1) && sameColor(++r, c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
 				break;
-			case 2:
+			case EAST:
 				if (!outOfBounds(c+1) && sameColor(r, ++c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
 				break;
-			case 3:
+			case WEST:
 				if (!outOfBounds(c-1) && sameColor(r, --c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
 				break;
-			case 4:
+			case NORTH_EAST:
 				if (!outOfBounds(r-1) && !outOfBounds(c+1) && sameColor(--r, ++c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
 				break;
-			case 5:
+			case SOUTH_WEST:
 				if (!outOfBounds(r+1) && !outOfBounds(c-1) && sameColor(++r, --c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
 				break;
-			case 6:
+			case NORTH_WEST:
 				if (!outOfBounds(r-1) && !outOfBounds(c-1) && sameColor(--r, --c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
 				break;
-			case 7:
+			case SOUTH_EAST:
 				if (!outOfBounds(r+1) && !outOfBounds(c+1) && sameColor(++r, ++c))
 					stepCount[step]++;
 				else { step++; r = row; c = col; }
@@ -221,16 +222,218 @@ class OmokState {
 		return true;
 	}
 	
-	// switch case문에서 stepCount[]를 더해주기 위한 조건 함수 2개
-	public boolean outOfBounds(int n) {
-		// 함수 내부 이상 무
-		return !(n >= 0 && n < size);
+	
+	
+	public boolean validMoveFIXING(int row, int col) {
+		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
+		// 				true면 진행		
+		final int NORTH = 0, SOUTH =1, EAST = 2, WEST = 3, NORTH_EAST = 4, SOUTH_WEST = 5, NORTH_WEST = 6, SOUTH_EAST = 7;
+		int r = row, c = col;
+		/*
+		 * step
+		 * 수직: 0(북), 1(남)
+		 * 수평: 2(동), 3(서)
+		 * 사선: 4(동북), 5(서남), 6(서북), 7(동남)
+		 */
+		int step = 0;
+		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
+		boolean [] oponnentAtEnd = new boolean [8];
+		boolean [] skip = new boolean[8];
+		boolean doneCheck = false;
+		while (!doneCheck) {			// while(step<8)
+			final int boundsCheckMax = 4;
+			int boundsCheck=0;
+			switch (step) {
+			// NORTH ~ SOUTH_EAST의 경우로 각각 몇번을 가는지 테스팅 하는 케이스.
+			case NORTH:
+				if (boundsCheck<boundsCheckMax && sameColor(--r, c))
+					stepCount[step]++;				
+				else {
+					// 진행이 끊겼을 때
+					if(differentColor(r,c)) { // 상대가 막아서 끊겼니? 
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {// 상대가 막지도않았고, 다음이 내 색도 아니고 -> 빈칸
+						if (r == row -1) // 바로 다음에 끊겼으면 
+							skip[step] = true;
+					}	
+					step++; r = row; c = col; // in else: toTheNextStep - set r and c as first state
+					}			
+				break;
+			case SOUTH:
+				if (!outOfBounds(r+1) && sameColor(++r, c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (r == row +1) 
+							skip[step] = true;
+						
+					}
+					 step++; r = row; c = col; }
+				break;
+			case EAST:
+				if (!outOfBounds(c+1) && sameColor(r, ++c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (c == col+1) 
+							skip[step] = true;	
+					}
+					 step++; r = row; c = col; }
+				break;
+			case WEST:
+				if (!outOfBounds(c-1) && sameColor(r, --c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (c == col-1) 
+							skip[step] = true;	
+					}
+					 step++; r = row; c = col; }
+				break;
+			case NORTH_EAST:
+				if (!outOfBounds(r-1) && !outOfBounds(c+1) && sameColor(--r, ++c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (c == col+1 && r == row-1) 
+							skip[step] = true;	
+					}
+					 step++; r = row; c = col; }
+				break;
+			case SOUTH_WEST:
+				if (!outOfBounds(r+1) && !outOfBounds(c-1) && sameColor(++r, --c))
+					stepCount[step]++;
+				else { 
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (c == col-1 && r == row+1) 
+							skip[step] = true;	
+					}
+					step++; r = row; c = col; }
+				break;
+			case NORTH_WEST:
+				if (!outOfBounds(r-1) && !outOfBounds(c-1) && sameColor(--r, --c))
+					stepCount[step]++;
+				else { 
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (c == col-1 && r == row-1) 
+							skip[step] = true;	
+					}
+					step++; r = row; c = col;
+					}
+				break;
+			case SOUTH_EAST:
+				if (!outOfBounds(r+1) && !outOfBounds(c+1) && sameColor(++r, ++c))
+					stepCount[step]++;
+				else  { 
+					if(differentColor(r,c)) {
+					oponnentAtEnd[step] = true;
+					}
+					if(!differentColor(r,c) && !sameColor(r,c)) {
+						if (c == col+1 && r == row+1) 
+							skip[step] = true;	
+					}
+					step++; r = row; c = col;
+					}
+				break;
+			default:
+				doneCheck = true;
+				break;
+			}
+		}
+		// moveResult는 승자를 결정하면 0을 return, 결정되지 않았다면 1과 2를 return
+		// 1과 2는? 2는 육목일 경우. 1은 ???
+		int result = moveResult(stepCount);
+		
+		if (result == 0) winner = currentPlayer;
+		
+		if (result == 1 || result == 2) {
+			if(currentPlayer == WHITE) {
+//				winner = currentPlayer;
+				return true;
+			}
+			return false;
+			
+		}
+		return true;
+	}
+	
+	public int moveResult_FIX(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
+		final int stepCountLimit33 = 2;
+		final int stepCountLimit44 = 3;
+		final int count2Limit = 2;
+		final int count3Limit = 2;
+		
+		int countTwo = 0, countThree = 0;
+		boolean win = false;
+		for (int i=0; i<8; i++) {
+			// 1. moveResult 2 혹은 0을 결정하는 if-else
+			if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] > 5-1)) 
+								// sc[0] + sc[1] > 5, sc[3] + sc[4] > 6 .... 
+								// -> 북+남이 6,7,8,... 동+서가 6,7,8... 이런경우 = 6목 일때 
+				return 2;		// 6목, 7목 
+			else 
+				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
+								// 북 + 남 = 5, 동 + 서 = 5, 
+					win = true;
+			
+			// moveresult 1을 결정하는 if-else
+			if (stepCount[i] == stepCountLimit33) 
+				countTwo++;
+			else
+				if (stepCount[i] == stepCountLimit44) {
+					countThree++;
+					//countTwo--;
+					}
+		}
+		
+		// 아래는 return값을 결정하는 if문들
+		if (countTwo >= count2Limit || countThree >= count3Limit)
+			return 1;
+		if (win)
+			return 0;
+		return 3;
 	}
 	
 	public boolean sameColor(int r, int c) {
 		// 함수 내부 이상 무
 		return board[r][c] == currentPlayer;
 	}
+	
+	public boolean differentColor(int r, int c) {
+		// 함수 내부 이상 무
+		if(currentPlayer == BLACK)
+			return board[r][c] == WHITE;
+		else if(currentPlayer == WHITE)
+			return board[r][c] == BLACK;
+		return false;
+	}
+	
+	
+	// switch case문에서 stepCount[]를 더해주기 위한 조건 함수 2개
+	public boolean outOfBounds(int n) {
+		// 함수 내부 이상 무
+		return !(n >= 0 && n < size);
+	}
+
 	
 	
 	/*
