@@ -68,7 +68,8 @@ public class OmokClient extends JFrame implements Runnable{
 
 	        System.out.println("서버에 연결을 요청합니다.\n");
 
-	        socket=new Socket("", 7777);
+	        socket=new Socket(ip, 7777);
+	        System.out.println(ip);
 	        //192.168.219.100
 	        infoView.setText("연결 성공!");
 	        System.out.println("---연결 성공--.\n");
@@ -81,11 +82,13 @@ public class OmokClient extends JFrame implements Runnable{
 			new Thread(this).start();
 			panel.state.setWriter(writer);
 			panel.state.mode = 2;
+			panel.state.reset();
+			panel.repaint();
 			
 	        }catch(Exception e){
 
 	        	System.out.println(e+"\n\n연결 실패..\n");  
-	        	System.exit(0);
+	        	System.exit(0);	        	
 	        }
     }
 
@@ -117,8 +120,7 @@ public class OmokClient extends JFrame implements Runnable{
 	            
 	            if(color.equals("BLACK")) {	            	
 	            	infoView.setText("흑돌을 잡았습니다.");
-	            	infoView.setText(" "+panel.state.mode);
-	            	
+	            		            	
 	            	my_color = "Black";
 	            	}
 	            else
