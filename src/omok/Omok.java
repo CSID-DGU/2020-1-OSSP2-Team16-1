@@ -130,7 +130,7 @@ class OmokState {
 			break;
 		}
 	}
-	
+	     ////////
 	public int getPiece(int row, int col) {
 		return board[row][col];
 	}
