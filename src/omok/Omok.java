@@ -255,10 +255,11 @@ class OmokState {
 					}
 					if(empty(r,c)) { // 그냥 비어서 끊겼니?
 						if (r == row -1) {// 그것도 바로 다음에 끊겼니?
-							if(skip[step] == true)
-								break;
-							skip[step] = true;	// 맞냐?
-							continue;	// 한번 더 해라!
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;	
+								
+							}
 						}
 					}	
 					step++; r = row; c = col; // in else: toTheNextStep - set r and c as first state
@@ -275,7 +276,8 @@ class OmokState {
 						if (r == row +1) {
 							if(skip[step] == false) {
 								skip[step] = true;	// 맞냐?
-								continue;
+								continue;	
+								
 							}
 						}
 							
