@@ -511,8 +511,8 @@ class OmokState {
 
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
-					if(skip[i] == false && skip[i-1] == false)			// 북 + 남 = 5, 동 + 서 = 5, 
+				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] >= 5-1))
+					//if(skip[i] == false && skip[i-1] == false)			// 북 + 남 = 5, 동 + 서 = 5, 
 					win = true;
 		}
 		
