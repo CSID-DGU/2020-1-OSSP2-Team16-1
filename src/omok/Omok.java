@@ -1,4 +1,4 @@
-package test;
+package omok;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,84 +13,45 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 /**
- * <code>¿À¸ñ °ÔÀÓ</code> - ÀÏ¹İ·ê(¿À¸ñ·ê)À» ÀÌ¿ëÇÏ´Â ¿À¸ñÆÇ ¹× °ÔÀÓ.
+ * <code>ì˜¤ëª© ê²Œì„</code> - ì¼ë°˜ë£°(ì˜¤ëª©ë£°)ì„ ì´ìš©í•˜ëŠ” ì˜¤ëª©íŒ ë° ê²Œì„.
  * https://namu.wiki/w/%EC%98%A4%EB%AA%A9(%EA%B2%8C%EC%9E%84)
  *
- * »ç¿ë¹ı: Ä¿¸Çµå¶óÀÎ¿¡¼­ java Omok [<ÆÇ Å©±â>]
- * @author ²ÜÁã
+ * ì‚¬ìš©ë²•: ì»¤ë§¨ë“œë¼ì¸ì—ì„œ java Omok [<íŒ í¬ê¸°>]
+ * @author ê¿€ì¥
  * @version 1.0
  */
 public class Omok
 {
-    /**
-     * <code>¸ŞÀÎ</code> - ¿À¸ñÆÇÀ» ÃÊ±âÈ­
-     * ÆÇ Å©±â´Â ±âº»ÀûÀ¸·Î 15Áö¸¸ Ä¿¸Çµå¶óÀÎ¿¡¼­ ½ÇÇàÇÒ ¶§ ¼³Á¤ÇÒ ¼ö ÀÖ´Ù.
+	/**
+     * <code>ë©”ì¸</code> - ì˜¤ëª©íŒì„ ì´ˆê¸°í™”
+     * íŒ í¬ê¸°ëŠ” ê¸°ë³¸ì ìœ¼ë¡œ 15ì§€ë§Œ ì»¤ë§¨ë“œë¼ì¸ì—ì„œ ì‹¤í–‰í•  ë•Œ ì„¤ì •í•  ìˆ˜ ìˆë‹¤.
      *
      * @param args a <code>String[]</code> value - command line
      * arguments
+     * 
      */
-    public static void main(String[] args) {
-
-	int size = 15;
-	if (args.length > 0)
-	    size = Integer.parseInt(args[0]);
-
-	JFrame frame = new JFrame();
 	
-	final int FRAME_WIDTH = 600;
-	final int FRAME_HEIGHT = 650;
-	frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-	frame.setTitle("Omok");
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	
-	
-	OmokPanel panel = new OmokPanel(size);
-	MenuLine modeMenu = new MenuLine();
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	frame.add(panel);
-	frame.setJMenuBar(modeMenu);
-	
-	frame.setVisible(true);
-    }
-}
+	private BufferedReader reader;                         // ì…ë ¥ ìŠ¤íŠ¸ë¦¼
+	private PrintWriter writer;                               // ì¶œë ¥ ìŠ¤íŠ¸ë¦¼
 
-class MenuLine extends JMenuBar implements ActionListener {
-	private JMenu gameMenu = new JMenu("Mode");
-	private JMenuItem singleMode = new JMenuItem("Single");
-	private JMenuItem multiMode = new JMenuItem("Multi");
-	private JMenuItem localMode = new JMenuItem("Local");
-	private JMenuItem exitGame = new JMenuItem("exit");
-
-	public MenuLine() {
-		super();
-		initialize();
-	}
-
-	private void initialize() {
-		singleMode.addActionListener(this);
-		multiMode.addActionListener(this);
-		localMode.addActionListener(this);
-		exitGame.addActionListener(this);
+	private Socket socket;    
+	static int size = 15;
+	static OmokPanel_mul panel = new OmokPanel_mul(size);
+	private OmokState_mul state = new OmokState_mul(15);
+	static Label infoView=new Label("ëŒ€ê¸° ì¤‘...", 1);
 		
-		add(gameMenu);
-		gameMenu.add(singleMode);
-		gameMenu.add(multiMode);
-		gameMenu.add(localMode);
-		gameMenu.add(exitGame);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == exitGame) System.exit(0);
-		else if(e.getSource() == localMode)
-		{
-			System.out.println("not yet...");
-		}
-	}
-
+    
+    
+    
 }
+
+
 
 class OmokState {
 	public static final int NONE = 0;
@@ -100,6 +61,7 @@ class OmokState {
 	private int winner;
 	private int currentPlayer;
 	private int board[][];
+	private boolean isSwitchOK = true;
 	public OmokState(int size) {
 		this.size = size;
 		board = new int[size][size];
@@ -111,15 +73,15 @@ class OmokState {
 		System.out.println("Try Place at row,column " + row +","+ col+" as Player"+currentPlayer);
 		if (validMove(row, col))
 			board[row][col] = currentPlayer;
-		else{// ¿©±â¿¡ µÑ¼ö ¾ø´Ù°í ¸í·ÉÀÌ ¶ß¸é -> º¯¼ö ÇÏ³ª¸¦ Ãß°¡ ÇØ¼­ currentPlayer - Switch°¡ false°¡ µÇµµ·Ï
-			JOptionPane.showMessageDialog(null, "¿©±â¿¡ µÑ ¼ö ¾ø½À´Ï´Ù.");
+		else{// ï¿½ï¿½ï¿½â¿¡ ï¿½Ñ¼ï¿½ ï¿½ï¿½ï¿½Ù°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß¸ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ ï¿½Ø¼ï¿½ currentPlayer - Switchï¿½ï¿½ falseï¿½ï¿½ ï¿½Çµï¿½ï¿½ï¿½
+			JOptionPane.showMessageDialog(null, "ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
 			isSwitchOK = false;
 		}
 		switch (currentPlayer) {	
 		
 		case BLACK:
 			if (isSwitchOK)
-			currentPlayer = WHITE;		// ´ÙÀ½ ÇÃ·¹ÀÌ¸¦ °áÁ¤ÇÏ´Â ¸í·É.
+			currentPlayer = WHITE;		// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½.
 			isSwitchOK= true;
 			break;
 		case WHITE:
@@ -139,29 +101,29 @@ class OmokState {
 	}
 	
 	public boolean validMove(int row, int col) {
-		// 	validMove°¡ 	false¸é ¿©±â¿¡ µÑ ¼ö ¾ø´Ù´Â message¸¦ Ãâ·ÂÇÑ´Ù.
-		// 				true¸é ÁøÇà		
+		// 	validMoveï¿½ï¿½ 	falseï¿½ï¿½ ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ù´ï¿½ messageï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+		// 				trueï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½		
 		int r = row, c = col;
 		/*
 		 * step
-		 * ¼öÁ÷: 0(ºÏ), 1(³²)
-		 * ¼öÆò: 2(µ¿), 3(¼­)
-		 * »ç¼±: 4(µ¿ºÏ), 5(¼­³²), 6(¼­ºÏ), 7(µ¿³²)
+		 * ï¿½ï¿½ï¿½ï¿½: 0(ï¿½ï¿½), 1(ï¿½ï¿½)
+		 * ï¿½ï¿½ï¿½ï¿½: 2(ï¿½ï¿½), 3(ï¿½ï¿½)
+		 * ï¿½ç¼±: 4(ï¿½ï¿½ï¿½ï¿½), 5(ï¿½ï¿½ï¿½ï¿½), 6(ï¿½ï¿½ï¿½ï¿½), 7(ï¿½ï¿½ï¿½ï¿½)
 		 */
 		int step = 0;
-		int[] stepCount = new int[8];	// ¿À¸ñÀÌ ¼º¸³ÇÏ´Â ¸ğµç Á¶°ÇÀ»(8°¡Áö) °Ë»çÇÏ´Â ¹è¿­
+		int[] stepCount = new int[8];	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(8ï¿½ï¿½ï¿½ï¿½) ï¿½Ë»ï¿½ï¿½Ï´ï¿½ ï¿½è¿­
 		boolean doneCheck = false;
 		while (!doneCheck) {
 
 			switch (step) {
-			// if¹®¿¡¼­´Â stepÀÌ »ìÆìº¼ ¹æÇâÀ» ÁöÁ¤ÇÏ¸ç, r°ú c¸¦ ¼öÁ¤ÇÏ¸é¼­ ¼øÂ÷ÀûÀ¸·Î »ìÆìº¸¸ç ³õ¿©Áø µ¹ÀÇ °¹¼ö¸¦ stepCountÀÇ °á°ú¸¦ ³½´Ù.
-			// else¹®¿¡¼­´Â stepÀ» ´ÙÀ½ ´Ü°è·Î ÁöÁ¤ÇÏ¸ç, r¿Í c¸¦ ÃÊ±â row°ªÀ¸·Î µÇµ¹·Á ³õ´Â´Ù.
-			// ¿¹½Ã. Èæµ¹ÀÌ ³õÀº ÀÚ¸® À§¿¡ Èæµ¹ÀÌ ¼Â, ¾Æ·¡¿¡ Èæµ¹ÀÌ ÇÏ³ª ÀÖÀ¸¸é case0´Â Å½»ö ¼¼¹ø = ÃÊ±âÈ­ ÇÑ¹ø, case1Àº Å½»ö 1¹ø ÃÊ±âÈ­ 
-			//													µÇ¾î¾ß ÇÏ´Âµ¥.... if¹® ¾Æ·¡·Î ÀüÇô µé¾î°¡Áö ¾Ê´Â´Ù.
+			// ifï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ stepï¿½ï¿½ ï¿½ï¿½ï¿½ìº¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½, rï¿½ï¿½ cï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ìº¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ stepCountï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+			// elseï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ stepï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½, rï¿½ï¿½ cï¿½ï¿½ ï¿½Ê±ï¿½ rowï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Çµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â´ï¿½.
+			// ï¿½ï¿½ï¿½ï¿½. ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½, ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½Ï³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ case0ï¿½ï¿½ Å½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ = ï¿½Ê±ï¿½È­ ï¿½Ñ¹ï¿½, case1ï¿½ï¿½ Å½ï¿½ï¿½ 1ï¿½ï¿½ ï¿½Ê±ï¿½È­ 
+			//													ï¿½Ç¾ï¿½ï¿½ ï¿½Ï´Âµï¿½.... ifï¿½ï¿½ ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½î°¡ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 			case 0:
-				if (!outOfBounds(r-1) && sameColor(--r, c))	//¿©±ä ¿Ö r--? ºÏÂÊÀ» Âß °¥°Å±â ¶§¹®¿¡ --- case 0Àº ¿©·¯¹ø È£ÃâµÈ´Ù.
-					stepCount[step]++;						// if¹® ¾ÈÀ¸·Î °¡Áú ¾Ê±â ¶§¹®¿¡ stepCount°¡ Áõ°¡ µÇÁö ¾Ê´Â´Ù - Á¶°Ç¹®¿¡ ¹®Á¦ È®ÀÎ.
-				else { step++; r = row; c = col; }			// ¹®Á¦ ÇØ°á: µÎ Á¶°Ç¹® ÇÔ¼ö¿¡´Â ÀÌ»óX. ÀÎ¼ö¸¦ »ìÆìº½ --- ÀÌ»ó ¹ß°ß
+				if (!outOfBounds(r-1) && sameColor(--r, c))	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ r--? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Å±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ --- case 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½È´ï¿½.
+					stepCount[step]++;						// ifï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ stepCountï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½ - ï¿½ï¿½ï¿½Ç¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½.
+				else { step++; r = row; c = col; }			// ï¿½ï¿½ï¿½ï¿½ ï¿½Ø°ï¿½: ï¿½ï¿½ ï¿½ï¿½ï¿½Ç¹ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½X. ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ìº½ --- ï¿½Ì»ï¿½ ï¿½ß°ï¿½
 				break;
 			case 1:
 				if (!outOfBounds(r+1) && sameColor(++r, c))
@@ -203,8 +165,8 @@ class OmokState {
 				break;
 			}
 		}
-		// moveResult´Â ½ÂÀÚ¸¦ °áÁ¤ÇÏ¸é 0À» return, °áÁ¤µÇÁö ¾Ê¾Ò´Ù¸é 1°ú 2¸¦ return
-		// 1°ú 2´Â? 2´Â À°¸ñÀÏ °æ¿ì. 1Àº ???
+		// moveResultï¿½ï¿½ ï¿½ï¿½ï¿½Ú¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ 0ï¿½ï¿½ return, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò´Ù¸ï¿½ 1ï¿½ï¿½ 2ï¿½ï¿½ return
+		// 1ï¿½ï¿½ 2ï¿½ï¿½? 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½. 1ï¿½ï¿½ ???
 		int result = moveResult(stepCount);
 		
 		if (result == 0) winner = currentPlayer;
@@ -215,41 +177,41 @@ class OmokState {
 		return true;
 	}
 	
-	// switch case¹®¿¡¼­ stepCount[]¸¦ ´õÇØÁÖ±â À§ÇÑ Á¶°Ç ÇÔ¼ö 2°³
+	// switch caseï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ stepCount[]ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ 2ï¿½ï¿½
 	public boolean outOfBounds(int n) {
-		// ÇÔ¼ö ³»ºÎ ÀÌ»ó ¹«
+		// ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½
 		return !(n >= 0 && n < size);
 	}
 	
 	public boolean sameColor(int r, int c) {
-		// ÇÔ¼ö ³»ºÎ ÀÌ»ó ¹«
+		// ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½
 		return board[r][c] == currentPlayer;
 	}
 	
 	
 	/*
-	 * ÀÌ±â´Â ¼ö(5): 0
-	 * ±İ¼ö(33 È¤Àº 44): 1
-	 * Àå¸ñ(6ÀÌ»ó): 2
-	 * ¼ö: 3
+	 * ï¿½Ì±ï¿½ï¿½ ï¿½ï¿½(5): 0
+	 * ï¿½İ¼ï¿½(33 È¤ï¿½ï¿½ 44): 1
+	 * ï¿½ï¿½ï¿½(6ï¿½Ì»ï¿½): 2
+	 * ï¿½ï¿½: 3
 	 */
-	public int moveResult(int[] stepCount) {	// return°ªÀÌ 1,2¸é false, 0ÀÌ¸é ½ÂÀÚ °áÁ¤.
+	public int moveResult(int[] stepCount) {	// returnï¿½ï¿½ï¿½ï¿½ 1,2ï¿½ï¿½ false, 0ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 		final int checkBugOn33 = 0;
 		final int checkBugOn44 = 1;
 		int countTwo = 0, countThree = 0;
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-			// 1. moveResult 2 È¤Àº 0À» °áÁ¤ÇÏ´Â if-else
+			// 1. moveResult 2 È¤ï¿½ï¿½ 0ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ if-else
 			if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] > 5-1)) 
 								// sc[0] + sc[1] > 5, sc[3] + sc[4] > 6 .... 
-								// -> ºÏ+³²ÀÌ 6,7,8,... µ¿+¼­°¡ 6,7,8... ÀÌ·±°æ¿ì = 6¸ñ ÀÏ¶§ 
-				return 2;		// 6¸ñ, 7¸ñ 
+								// -> ï¿½ï¿½+ï¿½ï¿½ï¿½ï¿½ 6,7,8,... ï¿½ï¿½+ï¿½ï¿½ï¿½ï¿½ 6,7,8... ï¿½Ì·ï¿½ï¿½ï¿½ï¿½ = 6ï¿½ï¿½ ï¿½Ï¶ï¿½ 
+				return 2;		// 6ï¿½ï¿½, 7ï¿½ï¿½ 
 			else 
 				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
-								// ºÏ + ³² = 5, µ¿ + ¼­ = 5, 
+								// ï¿½ï¿½ + ï¿½ï¿½ = 5, ï¿½ï¿½ + ï¿½ï¿½ = 5, 
 					win = true;
 			
-			// moveresult 1À» °áÁ¤ÇÏ´Â if-else
+			// moveresult 1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ if-else
 			if (stepCount[i] == 2-1) 
 				countTwo++;
 			else
@@ -257,7 +219,7 @@ class OmokState {
 					countThree++;
 		}
 		
-		// ¾Æ·¡´Â return°ªÀ» °áÁ¤ÇÏ´Â if¹®µé
+		// ï¿½Æ·ï¿½ï¿½ï¿½ returnï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ifï¿½ï¿½ï¿½ï¿½
 		if (countTwo >= 2-checkBugOn33 || countThree >= 2-checkBugOn44)
 			return 1;
 		if (win)

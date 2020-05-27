@@ -1,4 +1,4 @@
-package Omok;
+package omok;
 
 import java.net.*;
 
