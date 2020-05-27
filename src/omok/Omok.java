@@ -255,8 +255,10 @@ class OmokState {
 					}
 					if(empty(r,c)) { // 그냥 비어서 끊겼니?
 						if (r == row -1) {// 그것도 바로 다음에 끊겼니?
-							skip[step] = true;
-							continue;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
+							continue;	// 한번 더 해라!
 						}
 					}	
 					step++; r = row; c = col; // in else: toTheNextStep - set r and c as first state
@@ -271,7 +273,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (r == row +1) {
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 							
@@ -287,7 +291,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1){
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 					}
@@ -302,7 +308,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1){
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 					}
@@ -317,7 +325,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row-1){
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 					}
@@ -332,7 +342,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row+1) {
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 					}
@@ -347,7 +359,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row-1) {
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 					}
@@ -363,7 +377,9 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row+1) {
-							skip[step] = true;
+							if(skip[step] == true)
+								break;
+							skip[step] = true;	// 맞냐?
 							continue;
 						}
 					}
