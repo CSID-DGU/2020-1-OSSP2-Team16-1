@@ -441,7 +441,15 @@ class OmokState {
 					forbiddenCases[3]++;
 			}
 			
-			
+			// ! 아직은 서로 맞닿는 금수의 경우를 판단하지 못하는 코드. 서로 직교하는 식으로 만날때 제대로 동작하는지 확인 할 예정. --- 한쪽이 끝나는 case 2와 case4를 망하는 부분.
+		}
+		int caseSum=0;
+		for(int i=0;i<4;i++) {
+			caseSum+=forbiddenCases[i];
+		}
+
+		if(caseSum>1) {
+			return 1;
 		}
 		return 0;
 	}
