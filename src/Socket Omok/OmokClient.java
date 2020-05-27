@@ -41,9 +41,7 @@ public class OmokClient extends JFrame implements Runnable{
   
 
     client.setSize(FRAME_WIDTH, FRAME_HEIGHT+30);
-    client.connect();   
-
-	
+ 	
 	MenuLine modeMenu = new MenuLine();
     infoView.setBounds(0,0,FRAME_WIDTH,30);
     
@@ -82,6 +80,7 @@ public class OmokClient extends JFrame implements Runnable{
 			writer.println("[START]");
 			new Thread(this).start();
 			panel.state.setWriter(writer);
+			panel.state.mode = 2;
 			
 	        }catch(Exception e){
 
@@ -118,6 +117,8 @@ public class OmokClient extends JFrame implements Runnable{
 	            
 	            if(color.equals("BLACK")) {	            	
 	            	infoView.setText("흑돌을 잡았습니다.");
+	            	infoView.setText(" "+panel.state.mode);
+	            	
 	            	my_color = "Black";
 	            	}
 	            else
