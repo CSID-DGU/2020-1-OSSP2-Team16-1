@@ -70,6 +70,7 @@ class MenuLine extends JMenuBar implements ActionListener {
 	
 	OmokState state = new OmokState(15);
 	OmokClient client=new OmokClient("Omok");
+	private int selected = 0;
 	
 	public MenuLine() {
 		super();
@@ -83,27 +84,34 @@ class MenuLine extends JMenuBar implements ActionListener {
 		exitGame.addActionListener(this);
 		
 		add(gameMenu);
+		gameMenu.add(localMode);
 		gameMenu.add(singleMode);
 		gameMenu.add(multiMode);
-		gameMenu.add(localMode);
 		gameMenu.add(exitGame);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == singleMode)
+		if(e.getSource() == localMode)
 		{
-			JOptionPane.showMessageDialog(null, "Not yet...");
+			OmokClient.infoView.setText("로컬모드");
+			selected = 0;
 		}
-		else if(e.getSource() == localMode)
+		else if(e.getSource() == singleMode)
 		{
 			JOptionPane.showMessageDialog(null, "Not yet...");
 		}
 		else if(e.getSource() == multiMode)
 		{
-			OmokClient.infoView.setText("멀티모드");
-			client.connect();
-			OmokClient.infoView.setText("모드:"+state.mode);
+			if(selected != 2)
+			{
+				
+				client.connect();
+				selected = 2;
+			}else
+			{
+				JOptionPane.showMessageDialog(null, "이미 멀티모드를 플레이하고 있습니다.");
+			}
 		}
 		else if(e.getSource() == exitGame) System.exit(0);
 				
@@ -204,20 +212,7 @@ class OmokState {
 
       }
 
-    
-      public void stopGame(){              // 게임을 멈춘다.
-
-        reset();                              // 오목판을 초기화한다.
-
-        writer.println("[STOPGAME]");        // 상대편에게 메시지를 보낸다.
-
-        enable=false;
-
-        running=false;
-
-      }
-
-      public void setEnable(boolean enable){
+       public void setEnable(boolean enable){
 
         this.enable=enable;
 
@@ -456,7 +451,7 @@ class OmokPanel extends JPanel
 		state.playPiece(row, col);
 		repaint();
 		int winner = state.getWinner();
-		if (winner == OmokState.BLACK) {
+		if (winner != OmokState.NONE) {
 		    JOptionPane.showMessageDialog(null,
                       (winner == OmokState.BLACK) ? "Black wins!" 
 						    : "White wins!");
