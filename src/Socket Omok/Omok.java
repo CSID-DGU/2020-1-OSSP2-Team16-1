@@ -67,7 +67,9 @@ class MenuLine extends JMenuBar implements ActionListener {
 	private JMenuItem multiMode = new JMenuItem("Multi");
 	private JMenuItem localMode = new JMenuItem("Local");
 	private JMenuItem exitGame = new JMenuItem("exit");
-
+	
+	OmokState state = new OmokState(15);
+	OmokClient client=new OmokClient("Omok");
 	
 	public MenuLine() {
 		super();
@@ -99,28 +101,33 @@ class MenuLine extends JMenuBar implements ActionListener {
 		}
 		else if(e.getSource() == multiMode)
 		{
-			OmokClient.infoView.setText("멀티모드임");
+			OmokClient.infoView.setText("멀티모드");
+			state.mode = 2;
+			client.connect();
+			OmokClient.infoView.setText("모드:"+state.mode);
 		}
 		else if(e.getSource() == exitGame) System.exit(0);
+				
 	}
 	
 }
 
 class OmokState {
+	
 	public static final int NONE = 0;
 	public static final int BLACK = 1;
 	public static final int WHITE = -1;
 	public boolean isSwitchOK = true;
+	public int mode = 0;//0:local 1:single 2:multi
 	private int size;
 	private int winner;
 	private int currentPlayer;
 	private int board[][];
     private String info="게임 중지";           // 게임의 진행 상황을 나타내는 문자열
-    private PrintWriter writer;  
+    private PrintWriter writer;     
+    
     // true이면 사용자가 돌을 놓을 수 있는 상태를 의미하고,
-
     // false이면 사용자가 돌을 놓을 수 없는 상태를 의미한다.
-
     boolean enable=false;
 
     private int color=BLACK;                 // 사용자의 돌 색깔    
@@ -138,27 +145,30 @@ class OmokState {
 		          // 상대편에게 메시지를 전달하기 위한 스트림			
 		System.out.println("Try Place at row,column " + row +","+ col+" as"				+ " Player"+currentPlayer);
 		if (validMove(row, col)) {
-			writer.println("[STONE]"+row+" "+col);		
+			if(mode == 2)writer.println("[STONE]"+row+" "+col);		
 			board[row][col] = currentPlayer;	
+			enable = false;
 			}
 		else{// 여기에 둘수 없다고 명령이 뜨면 -> 변수 하나를 추가 해서 currentPlayer - Switch가 false가 되도록
 			JOptionPane.showMessageDialog(null, "여기에 둘 수 없습니다.");
 			//isSwitchOK = false;
 		}
+		if(mode == 0)
+		{
+			switch (currentPlayer) {	
 		
-		/*switch (currentPlayer) {	
-		
-		case BLACK:
-			if (isSwitchOK)
-			currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
-			isSwitchOK= true;
-			break;
-		case WHITE:
-			if (isSwitchOK)
-			currentPlayer = BLACK;
-			isSwitchOK=true;
-			break;
-		}*/
+			case BLACK:
+				if (isSwitchOK)
+					currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
+				isSwitchOK= true;
+				break;
+			case WHITE:
+				if (isSwitchOK)
+					currentPlayer = BLACK;
+				isSwitchOK=true;
+				break;
+			}
+		}
 	}
 
     public void putOpponent(int x, int y){       // 상대편의 돌을 놓는다.
@@ -175,11 +185,11 @@ class OmokState {
 
     public void startGame(String col){     // 게임을 시작한다.
         running=true;
-        OmokClient.infoView.setText("멀티모드임");
         if(col.equals("BLACK")){              // 흑이 선택되었을 때
 
           enable=true; color=BLACK;
-
+          currentPlayer = BLACK;
+          
           info="게임 시작... 두세요.";
 
         }   
@@ -195,6 +205,7 @@ class OmokState {
 
       }
 
+    
       public void stopGame(){              // 게임을 멈춘다.
 
         reset();                              // 오목판을 초기화한다.
@@ -206,7 +217,6 @@ class OmokState {
         running=false;
 
       }
-
 
       public void setEnable(boolean enable){
 
@@ -240,6 +250,7 @@ class OmokState {
 	public int getWinner() {
 		return winner;
 	}
+	
 	
 	public boolean validMove(int row, int col) {
 		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
@@ -426,7 +437,10 @@ class OmokPanel extends JPanel
     {
 	public void mouseReleased(MouseEvent e) 
 	{
-		if(!state.enable)return;  
+		if(state.mode == 2)
+		{
+			if(!state.enable)return;
+		}
 	    double panelWidth = getWidth();
 	    double panelHeight = getHeight();
 	    double boardWidth = Math.min(panelWidth, panelHeight) - 2 * MARGIN;
@@ -443,12 +457,16 @@ class OmokPanel extends JPanel
 		state.playPiece(row, col);
 		repaint();
 		int winner = state.getWinner();
-		if (winner != OmokState.NONE)
+		if (winner == OmokState.BLACK) {
 		    JOptionPane.showMessageDialog(null,
                       (winner == OmokState.BLACK) ? "Black wins!" 
 						    : "White wins!");
-		OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
-		state.enable = false;
+		    state.reset();
+		    repaint();
+		}
+		
+		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
+
 		
 		try {
 			File URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
