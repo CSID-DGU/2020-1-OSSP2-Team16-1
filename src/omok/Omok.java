@@ -235,9 +235,9 @@ class OmokState {
 	 * 수: 3
 	 */
 	public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
-		final int stepCountLimit33 = 2;
-		final int stepCountLimit44 = 3;
-		final int count2Limit = 1;
+		final int stepCountLimit33 = 1;
+		final int stepCountLimit44 = 2;
+		final int count2Limit = 2;
 		final int count3Limit = 2;
 		
 		int countTwo = 0, countThree = 0;
@@ -259,7 +259,7 @@ class OmokState {
 			else
 				if (stepCount[i] == stepCountLimit44) {
 					countThree++;
-					countTwo--;
+					//countTwo--;
 					}
 		}
 		
