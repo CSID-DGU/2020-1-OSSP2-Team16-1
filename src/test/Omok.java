@@ -1,10 +1,11 @@
-package Omok;
+package test;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Random;
 import java.net.Socket;
 import java.awt.*;
 import java.awt.event.*;
@@ -99,13 +100,15 @@ class MenuLine extends JMenuBar implements ActionListener {
 		}
 		else if(e.getSource() == singleMode)
 		{
-			JOptionPane.showMessageDialog(null, "Not yet...");
+			client.infoView.setText("싱글모드");
+			selected = 1;
+			client.change_player();
+			
 		}
 		else if(e.getSource() == multiMode)
 		{
 			if(selected != 2)
 			{
-				
 				client.connect();
 				selected = 2;
 			}else
@@ -126,10 +129,11 @@ class OmokState {
 	public static final int WHITE = -1;
 	public boolean isSwitchOK = true;
 	public int mode = 0;//0:local 1:single 2:multi
-	private int size;
+	protected int size;
 	private int winner;
-	private int currentPlayer;
-	private int board[][];
+	protected int currentPlayer;
+	protected static int botChoose = 0; // bot player's stone color
+	protected int board[][];
     private String info="게임 중지";           // 게임의 진행 상황을 나타내는 문자열
     private PrintWriter writer;     
     
@@ -164,6 +168,22 @@ class OmokState {
 		{
 			switch (currentPlayer) {	
 		
+			case BLACK:
+				if (isSwitchOK)
+					currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
+				isSwitchOK= true;
+				break;
+			case WHITE:
+				if (isSwitchOK)
+					currentPlayer = BLACK;
+				isSwitchOK=true;
+				break;
+			}
+		}
+		else if(mode == 1 && botChoose != currentPlayer)
+		{
+			switch(currentPlayer) {
+			
 			case BLACK:
 				if (isSwitchOK)
 					currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
@@ -661,7 +681,7 @@ class OmokPanel extends JPanel
 	private Image stoneWhite = null;
     private Clip clip = null;
     
-
+    BotAlgorithm bot = null;
  
     public OmokPanel() 
     {
@@ -675,8 +695,9 @@ class OmokPanel extends JPanel
 	state = new OmokState(size);
 	addMouseListener(new GomokuListener());
 	try {
+		//stone image URL and load
 		File URLOfImage1 = new File("image\\500px-Go_b_no_bg.svg.png");
-		File URLOfImage2 = new File("image\\500px-Go_W_no_bg.svg.png");
+		File URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
 		
 		
 		
@@ -703,20 +724,29 @@ class OmokPanel extends JPanel
     {
 	public void mouseReleased(MouseEvent e) 
 	{
+		double panelWidth = getWidth();
+	    double panelHeight = getHeight();
+		
 		if(state.mode == 2)
 		{
 			if(!state.enable)return;
 		}
-	    double panelWidth = getWidth();
-	    double panelHeight = getHeight();
+		
 	    double boardWidth = Math.min(panelWidth, panelHeight) - 2 * MARGIN;
 	    double squareWidth = boardWidth / size;
 	    double pieceDiameter = PIECE_FRAC * squareWidth;
 	    double xLeft = (panelWidth - boardWidth) / 2 + MARGIN;
 	    double yTop = (panelHeight - boardWidth) / 2 + MARGIN;
-	    int col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);
+	    int col = -1, row = -1;
 	    
-	    int row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
+	    if(state.mode != 1 || (state.mode == 1 && state.botChoose != state.currentPlayer)) {
+	    	col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);   
+	    	row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
+	    }
+	    else 
+	    {
+	    	// Bot player choosing selection 
+	    }
 	    if (row >= 0 && row < size && col >= 0 && col < size
 		&& state.getPiece(row, col) == OmokState.NONE
 		&& state.getWinner() == OmokState.NONE) {
@@ -754,7 +784,7 @@ class OmokPanel extends JPanel
 	double panelWidth = getWidth();
 	double panelHeight = getHeight();
 
-	g2.setColor(new Color(0.925f, 0.670f, 0.34f)); // 占쏙옙占쏙옙占쏙옙
+	g2.setColor(new Color(0.925f, 0.670f, 0.34f)); // set game plate color
 	g2.fill(new Rectangle2D.Double(0, 0, panelWidth, panelHeight));
 
 	
