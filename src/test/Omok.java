@@ -180,7 +180,7 @@ class OmokState {
 				break;
 			}
 		}
-		else if(mode == 1 && botChoose != currentPlayer)
+		else if(mode == 1)
 		{
 			switch(currentPlayer) {
 			
@@ -745,7 +745,9 @@ class OmokPanel extends JPanel
 	    }
 	    else 
 	    {
-	    	// Bot player choosing selection 
+	    	int[] pointInfo = bot.calcul_weight();
+	    	col = pointInfo[1];
+	    	row = pointInfo[0];
 	    }
 	    if (row >= 0 && row < size && col >= 0 && col < size
 		&& state.getPiece(row, col) == OmokState.NONE
