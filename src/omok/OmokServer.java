@@ -1,9 +1,7 @@
-package Omok;
+package omok;
 
 import java.net.*;
-
 import java.io.*;
-
 import java.util.*;
 
 public class OmokServer{
@@ -182,7 +180,7 @@ public class OmokServer{
 
           reader=null; writer=null; socket=null;
 
-          System.out.println(userName+"님이 접속을 끊었습니다.");
+          System.out.println(userName+" has disconnected.");
 
           System.out.println("접속자 수: "+bMan.size());
 

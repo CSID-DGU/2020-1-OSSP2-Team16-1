@@ -1,4 +1,4 @@
-package Omok;
+package omok;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -94,7 +94,7 @@ class MenuLine extends JMenuBar implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == localMode)
 		{
-			client.infoView.setText("로컬모드");
+			client.infoView.setText("You are playing in local mode");
 			selected = 0;
 		}
 		else if(e.getSource() == singleMode)
@@ -182,7 +182,7 @@ class OmokState {
 
      board[x][y]= -currentPlayer;
 
-      OmokClient.infoView.setText("상대가 두었습니다. 두세요.");
+      OmokClient.infoView.setText("Your turn to play.");
     }
     public boolean isRunning(){           // 게임의 진행 상태를 반환한다.
 
@@ -197,7 +197,7 @@ class OmokState {
           enable=true; color=BLACK;
           currentPlayer = BLACK;
           
-          info="게임 시작... 두세요.";
+          info="Game Started. Start the game by play stone.";
 
         }   
 
@@ -206,7 +206,7 @@ class OmokState {
           enable=false; color=WHITE;
           currentPlayer = WHITE;
 
-          info="게임 시작... 기다리세요.";
+          info="Game Started. Wait for the turn";
 
         }
 
@@ -231,7 +231,7 @@ class OmokState {
 
               board[i][j]=0;
 
-          info="게임 중지";
+          info="Game resetting";
 
           
 
@@ -731,7 +731,7 @@ class OmokPanel extends JPanel
 		    repaint();		   
 		}
 		
-		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
+		if(state.mode == 2)OmokClient.infoView.setText("Waiting for enemy's play...");
 
 		
 		try {

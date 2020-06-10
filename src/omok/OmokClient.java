@@ -1,4 +1,4 @@
-package Omok;
+package omok;
 
 import java.awt.Frame;
 import java.awt.Label;
@@ -25,7 +25,7 @@ public class OmokClient extends JFrame implements Runnable{
 	static int size = 15;
 	static OmokPanel panel = new OmokPanel(size);
 	private OmokState state = new OmokState(15);
-	static Label infoView=new Label("대기 중...", 1);
+	static Label infoView=new Label("Waiting for Opponents", 1);
     public static void main(String[] args) {
     	
     int s = size;
@@ -66,14 +66,14 @@ public class OmokClient extends JFrame implements Runnable{
 		try{
 			String ip = JOptionPane.showInputDialog("IP");
 
-	        System.out.println("서버에 연결을 요청합니다.\n");
+	        System.out.println("Requesting Server Connection\n");
 
 	        socket=new Socket(ip, 7777);
 	        System.out.println(ip);
 	        //192.168.219.100
-	        infoView.setText("연결 성공!");
+	        infoView.setText("Connection complete!");
 	        System.out.println("---연결 성공--.\n");
-	        System.out.println("이름을 입력하고 대기실로 입장하세요.\n");
+	        System.out.println("Name In, and Enter to the lobby.\n");
 
 	        reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -87,7 +87,7 @@ public class OmokClient extends JFrame implements Runnable{
 			
 	        }catch(Exception e){
 
-	        	System.out.println(e+"\n\n연결 실패..\n");  
+	        	System.out.println(e+"\n\nConnection Failed..\n");  
 	        	System.exit(0);	        	
 	        }
     }
@@ -119,24 +119,24 @@ public class OmokClient extends JFrame implements Runnable{
 	            panel.state.startGame(color);                     // 게임을 시작한다.
 	            
 	            if(color.equals("BLACK")) {	            	
-	            	infoView.setText("흑돌을 잡았습니다.");
+	            	infoView.setText("You are now on the Black side.");
 	            		            	
 	            	my_color = "Black";
 	            	}
 	            else
 	            {
-	            	infoView.setText("백돌을 잡았습니다.");
+	            	infoView.setText("You are now on the White Side");
 	            	my_color = "White";
 	            }
 	        }
 	        else if(msg.startsWith("[FULL]")){    
 	            	JOptionPane.showMessageDialog(null, 
-							"이미 게임중입니다.", "Message", 
+							"Already in game session.", "Message", 
 							JOptionPane.ERROR_MESSAGE); 
 	            	System.exit(0);	            	
 	        }
 	        else if(msg.startsWith("[DISCONNECT]")){              
-	        	  infoView.setText("상대가 나갔습니다. 승리!");
+	        	  infoView.setText("Your Opponent left. Victory!");
 	        	  JOptionPane.showMessageDialog(null, my_color+" wins!" );
 	        	  panel.state.setEnable(false); 			    		
 	        	  panel.state.reset();
