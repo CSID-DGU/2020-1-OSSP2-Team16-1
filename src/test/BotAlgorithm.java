@@ -79,7 +79,7 @@ public class BotAlgorithm {
 				
 				if(board[row][col] != 0) {
 					weight[row][col] = -100;
-					break;
+					continue;
 				}
 						
 				while (!doneCheck) {
@@ -89,58 +89,58 @@ public class BotAlgorithm {
 					// 예시. 흑돌이 놓은 자리 위에 흑돌이 셋, 아래에 흑돌이 하나 있으면 case0는 탐색 세번 = 초기화 한번, case1은 탐색 1번 초기화 
 					//													되어야 하는데.... if문 아래로 전혀 들어가지 않는다.
 					case 0:
-						if (!OutOfRange(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
+						if (OutOfRange(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
 							stepCount[step]+=10;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
-						else if (!OutOfRange(r) && diffColor(r, c) == 1)
+						else if (OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }			// 문제 해결: 두 조건문 함수에는 이상X. 인수를 살펴봄 --- 이상 발견
 						break;
 					case 1:
-						if (!OutOfRange(r+1) && sameColor(++r, c))
+						if (OutOfRange(r+1) && sameColor(++r, c))
 							stepCount[step]+=10;
-						else if (!OutOfRange(r) && diffColor(r, c) == 1)
+						else if (OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 2:
-						if (!OutOfRange(c+1) && sameColor(r, ++c))
+						if (OutOfRange(c+1) && sameColor(r, ++c))
 							stepCount[step]+=10;
-						else if (!OutOfRange(c) && diffColor(r, c) == 1)
+						else if (OutOfRange(c) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 3:
-						if (!OutOfRange(c-1) && sameColor(r, --c))
+						if (OutOfRange(c-1) && sameColor(r, --c))
 							stepCount[step]+=10;
-						else if (!OutOfRange(c) && diffColor(r, c) == 1)
+						else if (OutOfRange(c) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 4:
-						if (!OutOfRange(r-1) && !OutOfRange(c+1) && sameColor(--r, ++c))
+						if (OutOfRange(r-1) && OutOfRange(c+1) && sameColor(--r, ++c))
 							stepCount[step]+=10;
-						else if ( !OutOfRange(c) && !OutOfRange(r) && diffColor(r, c) == 1)
+						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 5:
-						if (!OutOfRange(r+1) && !OutOfRange(c-1) && sameColor(++r, --c))
+						if (OutOfRange(r+1) && OutOfRange(c-1) && sameColor(++r, --c))
 							stepCount[step]+=10;
-						else if ( !OutOfRange(c) && !OutOfRange(r) && diffColor(r, c) == 1)
+						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 6:
-						if (!OutOfRange(r-1) && !OutOfRange(c-1) && sameColor(--r, --c))
+						if (OutOfRange(r-1) && OutOfRange(c-1) && sameColor(--r, --c))
 							stepCount[step]+=10;
-						else if ( !OutOfRange(c) && !OutOfRange(r) && diffColor(r, c) == 1)
+						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 7:
-						if (!OutOfRange(r+1) && !OutOfRange(c+1) && sameColor(++r, ++c))
+						if (OutOfRange(r+1) && OutOfRange(c+1) && sameColor(++r, ++c))
 							stepCount[step]+=10;
-						else if ( !OutOfRange(c) && !OutOfRange(r) && diffColor(r, c) == 1)
+						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
@@ -149,6 +149,9 @@ public class BotAlgorithm {
 						break;
 					}
 				}
+				
+				doneCheck = false;
+				step = 0;
 						
 				for(int i = 0; i< 8; i++) {
 					if(isBlock[i] == 1)
@@ -157,8 +160,14 @@ public class BotAlgorithm {
 				}
 				if(weight[row][col] != 1)
 					weight[row][col] = sumOfWeight;
+				else
+				{
+					possibility[2] = 1;
+					possibility[1] = col;
+					possibility[0] = row;
+				}
 				
-				if(possibility[2] < weight[row][col]) {
+				if(possibility[2] < sumOfWeight) {
 					possibility[2] = sumOfWeight;
 					possibility[1] = col;
 					possibility[0] = row;
@@ -168,6 +177,7 @@ public class BotAlgorithm {
 			}
 			System.out.println("line check end: "+row);
 		}
+		System.out.println("process end");
 		return possibility;
 	}
 	
@@ -192,7 +202,7 @@ public class BotAlgorithm {
 	
 	private boolean OutOfRange(int i) // check array's range  
 	{
-		if(i<0 || i>=boardSize) return true;
-		else return false;
+		if(i<0 || i>=boardSize) return false;
+		else return true;
 	}
 }

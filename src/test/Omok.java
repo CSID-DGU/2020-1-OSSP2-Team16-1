@@ -132,7 +132,7 @@ class OmokState {
 	protected int size;
 	private int winner;
 	protected int currentPlayer;
-	protected static int botChoose = 0; // bot player's stone color
+	protected int botChoose = 0; // bot player's stone color
 	protected int board[][];
     private String info="게임 중지";           // 게임의 진행 상황을 나타내는 문자열
     private PrintWriter writer;     
