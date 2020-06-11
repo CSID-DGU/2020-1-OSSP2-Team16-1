@@ -66,9 +66,18 @@ public class OmokClient extends JFrame implements Runnable{
 
 	void change_player()
 	{
+		panel.state.reset();
 		panel.state.mode = 1;
 		panel.state.botChoose = (new Random().nextInt(1)) == 1? 1 : -1;
 		panel.bot = new BotAlgorithm(panel.state);
+		panel.repaint();
+	}
+	
+	void game_reset()
+	{
+		panel.state.reset();
+		panel.state.mode = 0;
+		panel.repaint();
 	}
 	
 	void connect(){                    // 연결

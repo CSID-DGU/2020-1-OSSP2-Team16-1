@@ -95,6 +95,7 @@ class MenuLine extends JMenuBar implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == localMode)
 		{
+			client.game_reset();
 			client.infoView.setText("로컬모드");
 			selected = 0;
 		}
