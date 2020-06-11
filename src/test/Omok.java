@@ -701,6 +701,11 @@ class OmokPanel extends JPanel
 		File URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
 		
 		
+		if(!URLOfImage1.canRead())
+			URLOfImage1 = new File("image/500px-Go_b_no_bg.svg.png");
+		
+		if(!URLOfImage1.canRead())
+			URLOfImage2 = new File("image/500px-Go_w_no_bg.svg.png");
 		
 		if (!URLOfImage1.canRead() && !URLOfImage2.canRead())
 		{
@@ -770,6 +775,8 @@ class OmokPanel extends JPanel
 		try {
 			File URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
 			
+			if(!URLOfSound1.canRead())
+				URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
 			dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
 			clip = AudioSystem.getClip();
 		    clip.open(dropSound);
