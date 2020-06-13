@@ -26,7 +26,7 @@ public class OmokClient extends JFrame implements Runnable{
 	
 	static int size = 15;
 	static OmokPanel panel = new OmokPanel(size);
-	private OmokState state = new OmokState(15);
+	protected OmokState state = new OmokState(15);
 	static Label infoView=new Label("대기 중...", 1);
     public static void main(String[] args) {
     	
@@ -68,7 +68,11 @@ public class OmokClient extends JFrame implements Runnable{
 	{
 		panel.state.reset();
 		panel.state.mode = 1;
-		panel.state.botChoose = (new Random().nextInt(1)) == 1? 1 : -1;
+		int choose = new Random().nextInt(2);
+		if(choose == 1)
+			panel.state.botChoose = 1;
+		else
+			panel.state.botChoose = -1;
 		panel.bot = new BotAlgorithm(panel.state);
 		panel.repaint();
 	}

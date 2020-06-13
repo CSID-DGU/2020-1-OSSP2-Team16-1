@@ -101,10 +101,9 @@ class MenuLine extends JMenuBar implements ActionListener {
 		}
 		else if(e.getSource() == singleMode)
 		{
-			client.infoView.setText("싱글모드");
-			selected = 1;
 			client.change_player();
-			
+			client.infoView.setText("싱글모드 - bot: "+client.panel.state.botChoose);
+			selected = 1;
 		}
 		else if(e.getSource() == multiMode)
 		{
@@ -254,7 +253,7 @@ class OmokState {
 
           info="게임 중지";
 
-          
+          currentPlayer = BLACK;
 
         }
   	  
@@ -700,13 +699,6 @@ class OmokPanel extends JPanel
 		File URLOfImage1 = new File("image\\500px-Go_b_no_bg.svg.png");
 		File URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
 		
-		
-		if(!URLOfImage1.canRead())
-			URLOfImage1 = new File("image/500px-Go_b_no_bg.svg.png");
-		
-		if(!URLOfImage1.canRead())
-			URLOfImage2 = new File("image/500px-Go_w_no_bg.svg.png");
-		
 		if (!URLOfImage1.canRead() && !URLOfImage2.canRead())
 		{
 			System.out.println("File doesn't exist!!\n");
@@ -751,7 +743,7 @@ class OmokPanel extends JPanel
 	    }
 	    else 
 	    {
-	    	int[] pointInfo = bot.calcul_weight();
+	    	int[] pointInfo = bot.choose_position();
 	    	col = pointInfo[1];
 	    	row = pointInfo[0];
 	    }
@@ -775,8 +767,6 @@ class OmokPanel extends JPanel
 		try {
 			File URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
 			
-			if(!URLOfSound1.canRead())
-				URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
 			dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
 			clip = AudioSystem.getClip();
 		    clip.open(dropSound);

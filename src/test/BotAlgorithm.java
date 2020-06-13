@@ -11,74 +11,48 @@ public class BotAlgorithm {
 	private int isFirstStep;
 	
 	public BotAlgorithm() { this(new OmokState(19)); }
-	public BotAlgorithm( OmokState input)
+	public BotAlgorithm( OmokState input)//Default set of weight_array
 	{
 		board = input.board;
 		boardSize = input.size;
 		weight = new int [boardSize][boardSize];
 		botPlayer = input.botChoose;
 		
+		//default position of bot player's first step
 		weight[boardSize/2-1][boardSize/2-1] = 1;
 		weight[boardSize/2-1][boardSize/2] = 1;
 		isFirstStep = 0;
 	}
 	
-	/*private void default_weight()
+	protected int[] choose_position()
 	{
-		for(int i = 0; i< boardSize; i++)
-			for(int j = 0; j< boardSize; j++)
-			{
-				if(board[i][j] != 0)
-					weight[i][j] = -1000; // worst weight = already exist
-				else { //Default weight: near by bot's stone
-					if(!OutOfRange(i+1)) {
-						if( !OutOfRange(j+1) && board[i][j] == board[i+1][j+1] )
-							weight[i][j] = 1;
-						if( board[i][j] == board[i+1][j] )
-							weight[i][j] = 1;
-						if( !OutOfRange(j-1) && board[i][j] == board[i+1][j-1] )
-							weight[i][j] = 1;
-					}
-					
-					if( !OutOfRange(j-1) && board[i][j] == board[i][j-1])
-						weight[i][j] = 1;
-					if( !OutOfRange(j+1) &&  board[i][j] == board[i][j+1])
-						weight[i][j] = 1; 
-					
-					if(!OutOfRange(i-1)) {
-						if( !OutOfRange(j-1) && board[i][j] == board[i-1][j-1])
-							weight[i][j] = 1;
-						if( board[i][j] == board[i-1][j])
-							weight[i][j] = 1;
-						if( !OutOfRange(j+1) &&  board[i][j] == board[i-1][j+1])
-							weight[i][j] = 1;
-					}
-				}
-			}
-	}*/
+		int[] result;
+		calcul_weight();
+		System.out.print("\n");
+		System.out.print("\n");
+		System.out.print("\n");
+		result =  calcul_defense_position();
+		return result;
+	}
 	
 	protected int[] calcul_weight()
 	{
 		int step = 0;
-		int[] stepCount = new int[8];
-		int[] isBlock = new int[8];
+		int[] stepCount = {1, 1, 1, 1, 1, 1, 1, 1};
+		int[] isBlock = {0, 0, 0, 0, 0, 0, 0, 0};
 		boolean doneCheck = false;
 		int r, c;
 		int sumOfWeight = 0;
 		int possibility[] = { 0, 0, 0 };
 		for(int row = 0; row < boardSize; row++) {
 			for(int col = 0; col < boardSize; col++) {
-				//stepCount reset 
-				for(int i = 0; i<8; i++) {
-					stepCount[i] = 0;
-					isBlock[i] = 0;
-				}
 				
 				r = row;
 				c = col;
 				
 				if(board[row][col] != 0) {
 					weight[row][col] = -100;
+					System.out.print(weight[row][col] + "\t");
 					continue;
 				}
 						
@@ -90,56 +64,56 @@ public class BotAlgorithm {
 					//													되어야 하는데.... if문 아래로 전혀 들어가지 않는다.
 					case 0:
 						if (OutOfRange(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
-							stepCount[step]+=10;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
+							stepCount[step]*=5;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
 						else if (OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }			// 문제 해결: 두 조건문 함수에는 이상X. 인수를 살펴봄 --- 이상 발견
 						break;
 					case 1:
 						if (OutOfRange(r+1) && sameColor(++r, c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if (OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 2:
 						if (OutOfRange(c+1) && sameColor(r, ++c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if (OutOfRange(c) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 3:
 						if (OutOfRange(c-1) && sameColor(r, --c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if (OutOfRange(c) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 4:
 						if (OutOfRange(r-1) && OutOfRange(c+1) && sameColor(--r, ++c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 5:
 						if (OutOfRange(r+1) && OutOfRange(c-1) && sameColor(++r, --c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 6:
 						if (OutOfRange(r-1) && OutOfRange(c-1) && sameColor(--r, --c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
 						break;
 					case 7:
 						if (OutOfRange(r+1) && OutOfRange(c+1) && sameColor(++r, ++c))
-							stepCount[step]+=10;
+							stepCount[step]*=5;
 						else if ( OutOfRange(c) && OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
 						else { step++; r = row; c = col; }
@@ -156,8 +130,17 @@ public class BotAlgorithm {
 				for(int i = 0; i< 8; i++) {
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
+					if(stepCount[i] == 1)
+						stepCount[i] = 0;
+					if(stepCount[i] >= 125)
+						stepCount[i] *= 2;
+					if(stepCount[i] == 4)
+						stepCount[i] *= 100;
 					sumOfWeight += stepCount[i];
+					stepCount[i] = 1;
+					isBlock[i] = 0;
 				}
+				//exception for first step
 				if(weight[row][col] != 1)
 					weight[row][col] = sumOfWeight;
 				else
@@ -174,10 +157,128 @@ public class BotAlgorithm {
 				}
 						
 				sumOfWeight = 0;
+				System.out.print(weight[row][col]+"\t");
 			}
-			System.out.println("line check end: "+row);
+			System.out.print("\n");
 		}
-		System.out.println("process end");
+		return possibility;
+	}
+	
+	protected int[] calcul_defense_position()
+	{
+		int step = 0;
+		int sumOfWeight = 0;
+		int[] stepCount = {0, 0, 0, 0, 0, 0, 0, 0};
+		int[] isBlock = {0, 0, 0, 0, 0, 0, 0, 0};
+		boolean doneCheck = false;
+		int possibility[] = { 0, 0, 0 };
+		
+		int r, c;
+		
+		for(int row = 0; row< boardSize; row++)
+		{
+			for(int col = 0; col< boardSize; col++)
+			{
+				r = row;
+				c = col;
+				
+				if(board[row][col] != 0) {
+					System.out.print(weight[row][col]+"\t");
+					continue;
+				}
+				while (!doneCheck) {
+					switch (step) {												
+					case 0:
+						if (OutOfRange(r-1) && diffColor(--r, c) == 1)
+							stepCount[step]+=10;
+						else if (OutOfRange(r) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 1:
+						if (OutOfRange(r+1) && diffColor(++r, c) == 1)
+							stepCount[step]+=10;
+						else if (OutOfRange(r) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 2:
+						if (OutOfRange(c+1) && diffColor(r, ++c) == 1)
+							stepCount[step]+=10;
+						else if (OutOfRange(c) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 3:
+						if (OutOfRange(c-1) && diffColor(r, --c) == 1)
+							stepCount[step]+=10;
+						else if (OutOfRange(c) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 4:
+						if (OutOfRange(r-1) && OutOfRange(c+1) && diffColor(--r, ++c) == 1)
+							stepCount[step]+=10;
+						else if ( OutOfRange(c) && OutOfRange(r) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 5:
+						if (OutOfRange(r+1) && OutOfRange(c-1) && diffColor(++r, --c) == 1)
+							stepCount[step]+=10;
+						else if ( OutOfRange(c) && OutOfRange(r) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 6:
+						if (OutOfRange(r-1) && OutOfRange(c-1) && diffColor(--r, --c) == 1)
+							stepCount[step]+=10;
+						else if ( OutOfRange(c) && OutOfRange(r) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					case 7:
+						if (OutOfRange(r+1) && OutOfRange(c+1) && diffColor(++r, ++c) == 1)
+							stepCount[step]+=10;
+						else if ( OutOfRange(c) && OutOfRange(r) && sameColor(r, c))
+						{ isBlock[step] = 1; step++; r = row; c = col;}
+						else { step++; r = row; c = col; }
+						break;
+					default:
+						doneCheck = true;
+						break;
+					}
+				}
+				doneCheck = false;
+				step = 0;
+					
+				for(int i = 0; i< 8; i++) {
+					if(isBlock[i] == 1)
+						stepCount[i] /= 2;
+					if(stepCount[i] == 1)
+						stepCount[i] = 0;
+					if((stepCount[i] >= 30 && isBlock[i] == 0)||(stepCount[i] >= 15 && isBlock[i] == 1))
+						stepCount[i] *= 10;
+					if(stepCount[i] >= 200)
+						stepCount[i] *= 10;
+					sumOfWeight += stepCount[i];
+					stepCount[i] = 0;
+					isBlock[i] = 0;
+				}
+					
+				weight[row][col] += sumOfWeight;
+					
+				if(possibility[2] < weight[row][col]) {
+					possibility[2] = weight[row][col];
+					possibility[1] = col;
+					possibility[0] = row;
+				}
+							
+				sumOfWeight = 0;
+				System.out.print(weight[row][col]+"\t");
+			}
+			System.out.print("\n");
+		}
 		return possibility;
 	}
 	
