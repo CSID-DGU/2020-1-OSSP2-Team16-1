@@ -130,7 +130,7 @@ class OmokState {
 	public boolean isSwitchOK = true;
 	public int mode = 0;//0:local 1:single 2:multi
 	protected int size;
-	private int winner;
+	protected int winner;
 	protected int currentPlayer;
 	protected int botChoose = 0; // bot player's stone color
 	protected int board[][];
@@ -254,7 +254,7 @@ class OmokState {
           info="게임 중지";
 
           currentPlayer = BLACK;
-
+          winner = NONE;
         }
   	  
 	public int getPiece(int row, int col) {

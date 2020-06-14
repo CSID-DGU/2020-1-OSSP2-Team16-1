@@ -9,6 +9,7 @@ public class BotAlgorithm {
 	private int botPlayer;
 	private int boardSize;
 	private int isFirstStep;
+	private OmokState prohibition;
 	
 	public BotAlgorithm() { this(new OmokState(19)); }
 	public BotAlgorithm( OmokState input)//Default set of weight_array
@@ -17,6 +18,7 @@ public class BotAlgorithm {
 		boardSize = input.size;
 		weight = new int [boardSize][boardSize];
 		botPlayer = input.botChoose;
+		prohibition = input;
 		
 		//default position of bot player's first step
 		weight[boardSize/2-1][boardSize/2-1] = 1;
@@ -24,9 +26,16 @@ public class BotAlgorithm {
 		isFirstStep = 0;
 	}
 	
+	protected void reset_bot()
+	{
+		weight[boardSize/2-1][boardSize/2-1] = 1;
+		weight[boardSize/2-1][boardSize/2] = 1;
+	}
+	
+	
 	protected int[] choose_position()
 	{
-		int[] result;
+		int[] result = {0, 0};
 		calcul_weight();
 		System.out.print("\n");
 		System.out.print("\n");
@@ -44,6 +53,15 @@ public class BotAlgorithm {
 		int r, c;
 		int sumOfWeight = 0;
 		int possibility[] = { 0, 0, 0 };
+		int currentStone = 0;;
+		
+		for(int row = 0; row < boardSize; row++)
+			for(int col = 0; col < boardSize; col++)
+				if(board[row][col] != 0)
+					currentStone++;
+		if(currentStone <= 1)
+			reset_bot();
+		
 		for(int row = 0; row < boardSize; row++) {
 			for(int col = 0; col < boardSize; col++) {
 				
@@ -128,14 +146,23 @@ public class BotAlgorithm {
 				step = 0;
 						
 				for(int i = 0; i< 8; i++) {
+					if(i % 2 == 0)
+					{
+						if(stepCount[i] == 25 && stepCount[i+1] == 25)
+							stepCount[i] = 2000;
+						else if(stepCount[i] == 125 && stepCount[i+1] == 5)
+							stepCount[i] = 2000;
+						else if(stepCount[i+1] == 125 && stepCount[i] == 5)
+							stepCount[i]  = 2000;
+					}
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
 					if(stepCount[i] == 1)
 						stepCount[i] = 0;
 					if(stepCount[i] >= 125)
-						stepCount[i] *= 2;
-					if(stepCount[i] == 4)
-						stepCount[i] *= 100;
+						stepCount[i] *= 3;
+					if((stepCount[i] >= 250 && isBlock[i] == 1) || stepCount[i] >= 1875)
+						stepCount[i] *= 10;
 					sumOfWeight += stepCount[i];
 					stepCount[i] = 1;
 					isBlock[i] = 0;
@@ -253,13 +280,22 @@ public class BotAlgorithm {
 				step = 0;
 					
 				for(int i = 0; i< 8; i++) {
+					if(i % 2 == 0)
+					{
+						if(stepCount[i] == 20 && stepCount[i+1] == 20)
+							stepCount[i] = 30;
+						else if(stepCount[i] == 3 && stepCount[i+1] == 1)
+							stepCount[i] = 30;
+						else if(stepCount[i+1] == 3 && stepCount[i] == 1)
+							stepCount[i] = 30;
+					}
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
 					if(stepCount[i] == 1)
 						stepCount[i] = 0;
 					if((stepCount[i] >= 30 && isBlock[i] == 0)||(stepCount[i] >= 15 && isBlock[i] == 1))
 						stepCount[i] *= 10;
-					if(stepCount[i] >= 200)
+					if((stepCount[i] >= 200 && isBlock[i] == 1)||stepCount[i] >= 400)
 						stepCount[i] *= 10;
 					sumOfWeight += stepCount[i];
 					stepCount[i] = 0;
@@ -268,10 +304,11 @@ public class BotAlgorithm {
 					
 				weight[row][col] += sumOfWeight;
 					
-				if(possibility[2] < weight[row][col]) {
+				if(possibility[2] < weight[row][col] && prohibition.validMove(row, col)) {
 					possibility[2] = weight[row][col];
 					possibility[1] = col;
 					possibility[0] = row;
+					prohibition.winner = 0;
 				}
 							
 				sumOfWeight = 0;
@@ -307,3 +344,4 @@ public class BotAlgorithm {
 		else return true;
 	}
 }
+
