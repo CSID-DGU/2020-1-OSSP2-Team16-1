@@ -154,6 +154,11 @@ public class BotAlgorithm {
 							stepCount[i] = 2000;
 						else if(stepCount[i+1] == 125 && stepCount[i] == 5)
 							stepCount[i]  = 2000;
+						
+						if(stepCount[i] == 25 && stepCount[i+1] == 5 && isBlock[i] != 1 && isBlock[i+1] != 1)
+							stepCount[i] = 30;
+						else if(stepCount[i] == 5 && stepCount[i+1] == 25 && isBlock[i] != 1 && isBlock[i+1] != 1)
+							stepCount[i] = 30;
 					}
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
@@ -288,7 +293,13 @@ public class BotAlgorithm {
 							stepCount[i] = 40;
 						else if(stepCount[i+1] == 3 && stepCount[i] == 1)
 							stepCount[i] = 40;
+						
+						if(stepCount[i] == 20 && stepCount[i+1] == 10 && isBlock[i] != 1 && isBlock[i+1] != 1)
+							stepCount[i] = 30;
+						else if(stepCount[i] == 10 && stepCount[i+1] == 20 && isBlock[i] != 1 && isBlock[i+1] != 1)
+							stepCount[i] = 30;
 					}
+						
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
 					if(stepCount[i] == 1)
