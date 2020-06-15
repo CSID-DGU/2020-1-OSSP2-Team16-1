@@ -1,4 +1,4 @@
-package Omok;
+package test;
 
 import java.awt.Frame;
 import java.awt.Label;
@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Random;
 import java.net.Socket;
 
 import javax.swing.JFrame;
@@ -22,10 +23,12 @@ public class OmokClient extends JFrame implements Runnable{
 
 	private Socket socket;
 	private static int mode;
+	
 	static int size = 15;
 	static OmokPanel panel = new OmokPanel(size);
-	private OmokState state = new OmokState(15);
+	protected OmokState state = new OmokState(15);
 	static Label infoView=new Label("대기 중...", 1);
+    BotAlgorithm bot = null;
     public static void main(String[] args) {
     	
     int s = size;
@@ -62,6 +65,29 @@ public class OmokClient extends JFrame implements Runnable{
 	    });
 	}
 
+	void change_player()
+	{
+		panel.state.reset();
+		panel.state.mode = 1;
+		int choose = new Random().nextInt(2);
+		if(choose == 1) {
+			panel.state.botChoose = 1;
+			panel.state.playPiece(7,7);
+		}
+		else
+			panel.state.botChoose = -1;
+
+		panel.bot = new BotAlgorithm(panel.state);
+		panel.repaint();
+	}
+	
+	void game_reset()
+	{
+		panel.state.reset();
+		panel.state.mode = 0;
+		panel.repaint();
+	}
+	
 	void connect(){                    // 연결
 		try{
 			String ip = JOptionPane.showInputDialog("IP");

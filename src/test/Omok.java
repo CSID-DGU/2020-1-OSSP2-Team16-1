@@ -1,14 +1,16 @@
-package Omok;
+package test;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Random;
 import java.net.Socket;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.awt.Robot;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -48,7 +50,6 @@ public class Omok
 	frame.setTitle("Omok");
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	
-
 	
 	OmokPanel panel = new OmokPanel(size);
 	MenuLine modeMenu = new MenuLine();
@@ -94,18 +95,20 @@ class MenuLine extends JMenuBar implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == localMode)
 		{
-			OmokClient.infoView.setText("로컬모드");
+			client.game_reset();
+			client.infoView.setText("로컬모드");
 			selected = 0;
 		}
 		else if(e.getSource() == singleMode)
 		{
-			JOptionPane.showMessageDialog(null, "Not yet...");
+			client.change_player();
+			client.infoView.setText("싱글모드 - bot: "+client.panel.state.botChoose);
+			selected = 1;
 		}
 		else if(e.getSource() == multiMode)
 		{
 			if(selected != 2)
 			{
-				
 				client.connect();
 				selected = 2;
 			}else
@@ -126,10 +129,11 @@ class OmokState {
 	public static final int WHITE = -1;
 	public boolean isSwitchOK = true;
 	public int mode = 0;//0:local 1:single 2:multi
-	private int size;
-	private int winner;
-	private int currentPlayer;
-	private int board[][];
+	protected int size;
+	protected int winner;
+	protected int currentPlayer;
+	protected int botChoose = 0; // bot player's stone color
+	protected int board[][];
     private String info="게임 중지";           // 게임의 진행 상황을 나타내는 문자열
     private PrintWriter writer;     
     
@@ -158,12 +162,28 @@ class OmokState {
 			}
 		else{// 여기에 둘수 없다고 명령이 뜨면 -> 변수 하나를 추가 해서 currentPlayer - Switch가 false가 되도록
 			JOptionPane.showMessageDialog(null, "여기에 둘 수 없습니다.");
-			//isSwitchOK = false;
+			isSwitchOK = false;
 		}
 		if(mode == 0)
 		{
 			switch (currentPlayer) {	
 		
+			case BLACK:
+				if (isSwitchOK)
+					currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
+				isSwitchOK= true;
+				break;
+			case WHITE:
+				if (isSwitchOK)
+					currentPlayer = BLACK;
+				isSwitchOK=true;
+				break;
+			}
+		}
+		else if(mode == 1)
+		{
+			switch(currentPlayer) {
+			
 			case BLACK:
 				if (isSwitchOK)
 					currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
@@ -233,8 +253,8 @@ class OmokState {
 
           info="게임 중지";
 
-          
-
+          currentPlayer = BLACK;
+          winner = NONE;
         }
   	  
 	public int getPiece(int row, int col) {
@@ -245,10 +265,10 @@ class OmokState {
 		return winner;
 	}
 	
-	
 	public boolean validMove(int row, int col) {
 		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
 		// 				true면 진행		
+		final int NORTH = 0, SOUTH =1, EAST = 2, WEST = 3, NORTH_EAST = 4, SOUTH_WEST = 5, NORTH_WEST = 6, SOUTH_EAST = 7;
 		int r = row, c = col;
 		/*
 		 * step
@@ -258,9 +278,257 @@ class OmokState {
 		 */
 		int step = 0;
 		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
+		boolean [] opponentAtEnd = new boolean [8];
+		boolean [] skip = new boolean[8];
+		boolean doneCheck = false;
+		while (!doneCheck) {			// while(step<8)
+			final int boundsCheckMax = 4;
+			int boundsCheck=0;
+			switch (step) {
+			// NORTH ~ SOUTH_EAST의 경우로 각각 몇번을 가는지 테스팅 하는 케이스.
+			case NORTH:
+				if (!outOfBounds(r-1) && sameColor(--r, c))
+					stepCount[step]++;				
+				else {
+					// 진행이 끊겼을 때
+					if(differentColor(r,c)) { // 상대가 막아서 끊겼니? 
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) { // 그냥 비어서 끊겼니?
+						if (r == row -1) {// 그것도 바로 다음에 끊겼니?
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;	
+								
+							}
+						}
+					}	
+					step++; r = row; c = col; // in else: toTheNextStep - set r and c as first state
+					}			
+				break;
+			case SOUTH:
+				if (!outOfBounds(r+1) && sameColor(++r, c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (r == row +1) {
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;	
+								
+							}
+						}
+							
+					}
+					 step++; r = row; c = col; }
+				break;
+			case EAST:
+				if (!outOfBounds(c+1) && sameColor(r, ++c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (c == col+1){
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
+						}
+					}
+					 step++; r = row; c = col; }
+				break;
+			case WEST:
+				if (!outOfBounds(c-1) && sameColor(r, --c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (c == col-1){
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
+						}
+					}
+					 step++; r = row; c = col; }
+				break;
+			case NORTH_EAST:
+				if (!outOfBounds(r-1) && !outOfBounds(c+1) && sameColor(--r, ++c))
+					stepCount[step]++;
+				else {
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (c == col+1 && r == row-1){
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
+						}
+					}
+					 step++; r = row; c = col; }
+				break;
+			case SOUTH_WEST:
+				if (!outOfBounds(r+1) && !outOfBounds(c-1) && sameColor(++r, --c))
+					stepCount[step]++;
+				else { 
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (c == col-1 && r == row+1) {
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
+						}
+					}
+					step++; r = row; c = col; }
+				break;
+			case NORTH_WEST:
+				if (!outOfBounds(r-1) && !outOfBounds(c-1) && sameColor(--r, --c))
+					stepCount[step]++;
+				else { 
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (c == col-1 && r == row-1) {
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
+						}
+					}
+					step++; r = row; c = col;
+					}
+				break;
+			case SOUTH_EAST:
+				if (!outOfBounds(r+1) && !outOfBounds(c+1) && sameColor(++r, ++c))
+					stepCount[step]++;
+				else  { 
+					if(differentColor(r,c)) {
+					opponentAtEnd[step] = true;
+					}
+					if(empty(r,c)) {
+						if (c == col+1 && r == row+1) {
+							if(skip[step] == false) {
+								skip[step] = true;	// 맞냐?
+								continue;
+							}
+						}
+					}
+					step++; r = row; c = col;
+					}
+				break;
+			default:
+				doneCheck = true;
+				break;
+			}
+		}
+		// moveResult는 승자를 결정하면 0을 return, 결정되지 않았다면 1과 2를 return
+		// 1과 2는? 2는 육목일 경우. 1은 ???
+		int result = moveResult_FIX(stepCount,opponentAtEnd,skip);
+		
+		if (result == 0) winner = currentPlayer;
+		
+		if (result == 1 || result == 2) {
+			if(currentPlayer == WHITE) {
+//				winner = currentPlayer;
+				return true;
+			}
+			return false;
+			
+		}
+		return true;
+	}
+	
+	public int moveResult_FIX(int[] stepCount,boolean enemyAtEnd[], boolean skip[]) {	// return값이 1,2면 false, 0이면 승자 결정.
+		
+		// 금수는 총 네개로,  oxo, xoo, oxoo, x_oo가 있다.
+		// 이 때, 금수의 끝이 막혔는지는 enemyAtEnd가 false일 때 뚫렸음을 의미한다.
+		// skip은 네번째 금수를 위한 boolean형 변수로, x_oo의 _부분을 의미한다.
+		int [] forbiddenCases = new int [4];
+		// 마지막에 계산할 때, forbiddenCases의 초
+		
+		for (int i=0; i<8; i++) {
+			// 
+			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 1)) // 첫번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[0]++;
+			}
+
+			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 두번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[1]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 두번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[1]++;
+			}
+			
+			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 2)) // 세번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[2]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 1)) // 세번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&!skip[i-1]&&!skip[i]) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					forbiddenCases[2]++;
+			}
+
+			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 네번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]&&skip[i]) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
+					forbiddenCases[3]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 네번째 금수.
+			{
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]&&skip[i]) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
+					forbiddenCases[3]++;
+			}
+			
+			// ! 아직은 서로 맞닿는 금수의 경우를 판단하지 못하는 코드. 서로 직교하는 식으로 만날때 제대로 동작하는지 확인 할 예정. --- 한쪽이 끝나는 case 2와 case4를 망하는 부분.
+		}
+		int caseSum=0;
+		for(int i=0;i<4;i++) {
+			caseSum+=forbiddenCases[i];
+		}
+
+		if(caseSum>1) {
+			return 1;
+		}
+		if(moveResultWin(stepCount) == 0) {
+			winner = currentPlayer;
+		}
+		return 3;
+	}
+	/*public boolean validMove(int row, int col) {
+		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
+		// 				true면 진행		
+		int r = row, c = col;
+		/*
+		 * step
+		 * 수직: 0(북), 1(남)
+		 * 수평: 2(동), 3(서)
+		 * 사선: 4(동북), 5(서남), 6(서북), 7(동남)
+		 */
+		/*int step = 0;
+		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
 		boolean doneCheck = false;
 		while (!doneCheck) {
-
 			switch (step) {
 			// if문에서는 step이 살펴볼 방향을 지정하며, r과 c를 수정하면서 순차적으로 살펴보며 놓여진 돌의 갯수를 stepCount의 결과를 낸다.
 			// else문에서는 step을 다음 단계로 지정하며, r와 c를 초기 row값으로 되돌려 놓는다.
@@ -321,7 +589,7 @@ class OmokState {
 			return false;
 		
 		return true;
-	}
+	}*///원본
 	
 	// switch case문에서 stepCount[]를 더해주기 위한 조건 함수 2개
 	public boolean outOfBounds(int n) {
@@ -333,7 +601,17 @@ class OmokState {
 		// 함수 내부 이상 무
 		return board[r][c] == currentPlayer;
 	}
-	
+	public boolean empty(int r,int c) {
+		return board[r][c] == 0;
+	}
+	public boolean differentColor(int r, int c) {
+		// 함수 내부 이상 무
+		if(currentPlayer == BLACK)
+			return board[r][c] == WHITE;
+		else if(currentPlayer == WHITE)
+			return board[r][c] == BLACK;
+		return false;
+	}
 	
 	/*
 	 * 이기는 수(5): 0
@@ -341,7 +619,7 @@ class OmokState {
 	 * 장목(6이상): 2
 	 * 수: 3
 	 */
-	public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
+	/*public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
 		final int checkBugOn33 = 0;
 		final int checkBugOn44 = 0;
 		int countTwo = 0, countThree = 0;
@@ -371,6 +649,19 @@ class OmokState {
 		if (win)
 			return 0;
 		return 3;
+	}*///원본코드
+	public int moveResultWin(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
+
+		boolean win = false;
+		for (int i=0; i<8; i++) {
+				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
+							// 북 + 남 = 5, 동 + 서 = 5, 
+					win = true;
+		}
+		
+		if (win)
+			return 0;
+		return 3;
 	}
 	
 	
@@ -389,7 +680,7 @@ class OmokPanel extends JPanel
 	private Image stoneWhite = null;
     private Clip clip = null;
     
-
+    BotAlgorithm bot = null;
  
     public OmokPanel() 
     {
@@ -403,10 +694,9 @@ class OmokPanel extends JPanel
 	state = new OmokState(size);
 	addMouseListener(new GomokuListener());
 	try {
+		//stone image URL and load
 		File URLOfImage1 = new File("image\\500px-Go_b_no_bg.svg.png");
-		File URLOfImage2 = new File("image\\500px-Go_W_no_bg.svg.png");
-		
-		
+		File URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
 		
 		if (!URLOfImage1.canRead() && !URLOfImage2.canRead())
 		{
@@ -431,32 +721,43 @@ class OmokPanel extends JPanel
     {
 	public void mouseReleased(MouseEvent e) 
 	{
+		double panelWidth = getWidth();
+	    double panelHeight = getHeight();
+		
 		if(state.mode == 2)
 		{
 			if(!state.enable)return;
 		}
-	    double panelWidth = getWidth();
-	    double panelHeight = getHeight();
+		
 	    double boardWidth = Math.min(panelWidth, panelHeight) - 2 * MARGIN;
 	    double squareWidth = boardWidth / size;
 	    double pieceDiameter = PIECE_FRAC * squareWidth;
 	    double xLeft = (panelWidth - boardWidth) / 2 + MARGIN;
 	    double yTop = (panelHeight - boardWidth) / 2 + MARGIN;
-	    int col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);
-	    
-	    int row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
+	    int col = -1, row = -1;	    
+	    col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);   
+	   	row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
+
 	    if (row >= 0 && row < size && col >= 0 && col < size
 		&& state.getPiece(row, col) == OmokState.NONE
-		&& state.getWinner() == OmokState.NONE) {
+		&& state.getWinner() == OmokState.NONE) {	    	
 		state.playPiece(row, col);
-		repaint();
+	    repaint();		   
+		if(state.mode == 1 && state.isSwitchOK == true)
+		{			
+	    	int[] pointInfo = bot.choose_position();
+	    	col = pointInfo[1];
+	    	row = pointInfo[0];
+	    	state.playPiece(row,col);
+			repaint();
+	    }
 		int winner = state.getWinner();
 		if (winner != OmokState.NONE) {
 		    JOptionPane.showMessageDialog(null,
                       (winner == OmokState.BLACK) ? "Black wins!" 
 						    : "White wins!");
 		    state.reset();
-		    repaint();
+
 		}
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
@@ -482,7 +783,7 @@ class OmokPanel extends JPanel
 	double panelWidth = getWidth();
 	double panelHeight = getHeight();
 
-	g2.setColor(new Color(0.925f, 0.670f, 0.34f)); // 占쏙옙占쏙옙占쏙옙
+	g2.setColor(new Color(0.925f, 0.670f, 0.34f)); // set game plate color
 	g2.fill(new Rectangle2D.Double(0, 0, panelWidth, panelHeight));
 
 	
@@ -528,5 +829,4 @@ class OmokPanel extends JPanel
 		}
 	    }
     }	
-
 }
