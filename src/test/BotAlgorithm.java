@@ -21,15 +21,15 @@ public class BotAlgorithm {
 		prohibition = input;
 		
 		//default position of bot player's first step
-		weight[boardSize/2-1][boardSize/2-1] = 1;
-		weight[boardSize/2-1][boardSize/2] = 1;
+		weight[boardSize/2][boardSize/2] = 1;
+		weight[boardSize/2][boardSize/2+1] = 1;
 		isFirstStep = 0;
 	}
 	
 	protected void reset_bot()
 	{
-		weight[boardSize/2-1][boardSize/2-1] = 1;
-		weight[boardSize/2-1][boardSize/2] = 1;
+		weight[boardSize/2][boardSize/2] = 1;
+		weight[boardSize/2][boardSize/2+1] = 1;
 	}
 	
 	
@@ -283,17 +283,17 @@ public class BotAlgorithm {
 					if(i % 2 == 0)
 					{
 						if(stepCount[i] == 20 && stepCount[i+1] == 20)
-							stepCount[i] = 30;
+							stepCount[i] = 40;
 						else if(stepCount[i] == 3 && stepCount[i+1] == 1)
-							stepCount[i] = 30;
+							stepCount[i] = 40;
 						else if(stepCount[i+1] == 3 && stepCount[i] == 1)
-							stepCount[i] = 30;
+							stepCount[i] = 40;
 					}
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
 					if(stepCount[i] == 1)
 						stepCount[i] = 0;
-					if((stepCount[i] >= 30 && isBlock[i] == 0)||(stepCount[i] >= 15 && isBlock[i] == 1))
+					if((stepCount[i] >= 30 && isBlock[i] == 0)||(stepCount[i] >= 20 && isBlock[i] == 1))
 						stepCount[i] *= 10;
 					if((stepCount[i] >= 200 && isBlock[i] == 1)||stepCount[i] >= 400)
 						stepCount[i] *= 10;
