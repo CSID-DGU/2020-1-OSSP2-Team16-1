@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
+import java.awt.Robot;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -49,7 +50,6 @@ public class Omok
 	frame.setTitle("Omok");
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	
-
 	
 	OmokPanel panel = new OmokPanel(size);
 	MenuLine modeMenu = new MenuLine();
@@ -529,7 +529,6 @@ class OmokState {
 		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
 		boolean doneCheck = false;
 		while (!doneCheck) {
-
 			switch (step) {
 			// if문에서는 step이 살펴볼 방향을 지정하며, r과 c를 수정하면서 순차적으로 살펴보며 놓여진 돌의 갯수를 stepCount의 결과를 낸다.
 			// else문에서는 step을 다음 단계로 지정하며, r와 c를 초기 row값으로 되돌려 놓는다.
@@ -735,30 +734,30 @@ class OmokPanel extends JPanel
 	    double pieceDiameter = PIECE_FRAC * squareWidth;
 	    double xLeft = (panelWidth - boardWidth) / 2 + MARGIN;
 	    double yTop = (panelHeight - boardWidth) / 2 + MARGIN;
-	    int col = -1, row = -1;
-	    
-	    if(state.mode != 1 || (state.mode == 1 && state.botChoose != state.currentPlayer)) {
-	    	col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);   
-	    	row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
-	    }
-	    else 
-	    {
+	    int col = -1, row = -1;	    
+	    col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);   
+	   	row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
+
+	    if (row >= 0 && row < size && col >= 0 && col < size
+		&& state.getPiece(row, col) == OmokState.NONE
+		&& state.getWinner() == OmokState.NONE) {	    	
+		state.playPiece(row, col);
+	    repaint();		   
+		if(state.mode == 1 && state.isSwitchOK == true)
+		{			
 	    	int[] pointInfo = bot.choose_position();
 	    	col = pointInfo[1];
 	    	row = pointInfo[0];
+	    	state.playPiece(row,col);
+			repaint();
 	    }
-	    if (row >= 0 && row < size && col >= 0 && col < size
-		&& state.getPiece(row, col) == OmokState.NONE
-		&& state.getWinner() == OmokState.NONE) {
-		state.playPiece(row, col);
-		repaint();
 		int winner = state.getWinner();
 		if (winner != OmokState.NONE) {
 		    JOptionPane.showMessageDialog(null,
                       (winner == OmokState.BLACK) ? "Black wins!" 
 						    : "White wins!");
 		    state.reset();
-		    repaint();		   
+
 		}
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
@@ -830,5 +829,4 @@ class OmokPanel extends JPanel
 		}
 	    }
     }	
-
 }
