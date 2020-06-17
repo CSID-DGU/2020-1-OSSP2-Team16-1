@@ -300,7 +300,6 @@ class OmokState {
 					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) { // 그냥 비어서 끊겼니?
-						
 						if(oneMoreCheckActivated[step] <= 3) {
 							oneMoreCheckActivated[step]++;
 							continue;
@@ -321,7 +320,6 @@ class OmokState {
 					opponentAtEnd[step] = true;
 					}
 					if(empty(r,c)) {
-						
 						if(oneMoreCheckActivated[step] <= 3) {
 							oneMoreCheckActivated[step]++;
 							continue;
