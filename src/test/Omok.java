@@ -162,7 +162,7 @@ class OmokState {
 			}
 		else{// 여기에 둘수 없다고 명령이 뜨면 -> 변수 하나를 추가 해서 currentPlayer - Switch가 false가 되도록
 			JOptionPane.showMessageDialog(null, "여기에 둘 수 없습니다.");
-			isSwitchOK = false;
+			this.isSwitchOK = false;
 		}
 		if(mode == 0)
 		{
@@ -185,14 +185,14 @@ class OmokState {
 			switch(currentPlayer) {
 			
 			case BLACK:
-				if (isSwitchOK)
+				if (isSwitchOK) {
 					currentPlayer = WHITE;		// 다음 플레이를 결정하는 명령.
-				isSwitchOK= true;
+					isSwitchOK= true; }
 				break;
 			case WHITE:
-				if (isSwitchOK)
+				if (isSwitchOK) {
 					currentPlayer = BLACK;
-				isSwitchOK=true;
+					isSwitchOK=true; }
 				break;
 			}
 		}
@@ -252,10 +252,21 @@ class OmokState {
               board[i][j]=0;
 
           info="게임 중지";
-
           currentPlayer = BLACK;
-          winner = NONE;
-        }
+          
+          if(mode == 1) {
+          String[] buttons = {"흑", "백"};
+  			int choose = JOptionPane.showOptionDialog(null, "흑과 백중 원하는 돌을 선택하세요", "흑 백 선택", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, buttons, "흑");
+  			//int choose = new Random().nextInt(2);
+  			if(choose == 1) {
+  				botChoose = 1;
+  				playPiece(new Random().nextInt(2)+6,new Random().nextInt(2)+6);			
+  			}
+  			else
+  				botChoose = -1;
+  			winner = NONE;
+          }
+      	}
   	  
 	public int getPiece(int row, int col) {
 		return board[row][col];
@@ -730,9 +741,9 @@ class OmokState {
 
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] >= 5-1)&& skip[i] == 0)
+				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] >= 5-1)&&skip[i] != 1 && skip[i-1] != 1)
 							// 북 + 남 = 5, 동 + 서 = 5,
-					if(currentPlayer == BLACK && stepCount[i] == 4)
+					if(currentPlayer == BLACK && stepCount[i] + stepCount[i-1] == 4)
 						win = true;
 					else if(currentPlayer == WHITE)
 						win = true;
@@ -830,12 +841,15 @@ class OmokPanel extends JPanel
 	    	state.playPiece(row,col);
 			repaint();
 	    }
+		else if(!state.isSwitchOK)
+			state.isSwitchOK = true;
+		
 		int winner = state.getWinner();
 		if (winner != OmokState.NONE) {
 		    JOptionPane.showMessageDialog(null,
-                      (winner == OmokState.BLACK) ? "Black wins!" 
-						    : "White wins!");
+                      (winner == OmokState.BLACK) ? "Black win!" : "White wins!");
 		    state.reset();
+		    repaint();
 
 		}
 		
