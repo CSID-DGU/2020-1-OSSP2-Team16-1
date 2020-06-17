@@ -37,9 +37,9 @@ public class BotAlgorithm {
 	{
 		int[] result = {0, 0};
 		calcul_weight();
-		System.out.print("\n");
-		System.out.print("\n");
-		System.out.print("\n");
+//		System.out.print("\n");
+//		System.out.print("\n");
+//		System.out.print("\n");
 		result =  calcul_defense_position();
 		return result;
 	}
@@ -70,7 +70,7 @@ public class BotAlgorithm {
 				
 				if(board[row][col] != 0) {
 					weight[row][col] = -100;
-					System.out.print(weight[row][col] + "\t");
+//					System.out.print(weight[row][col] + "\t");
 					continue;
 				}
 						
@@ -189,9 +189,9 @@ public class BotAlgorithm {
 				}
 						
 				sumOfWeight = 0;
-				System.out.print(weight[row][col]+"\t");
+//				System.out.print(weight[row][col]+"\t");
 			}
-			System.out.print("\n");
+//			System.out.print("\n");
 		}
 		return possibility;
 	}
@@ -215,7 +215,7 @@ public class BotAlgorithm {
 				c = col;
 				
 				if(board[row][col] != 0) {
-					System.out.print(weight[row][col]+"\t");
+//					System.out.print(weight[row][col]+"\t");
 					continue;
 				}
 				while (!doneCheck) {
@@ -323,9 +323,9 @@ public class BotAlgorithm {
 				}
 							
 				sumOfWeight = 0;
-				System.out.print(weight[row][col]+"\t");
+//				System.out.print(weight[row][col]+"\t");
 			}
-			System.out.print("\n");
+//			System.out.print("\n");
 		}
 		return possibility;
 	}
