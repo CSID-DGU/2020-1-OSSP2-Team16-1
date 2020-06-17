@@ -289,9 +289,9 @@ public class BotAlgorithm {
 					{
 						if(stepCount[i] == 20 && stepCount[i+1] == 20)
 							stepCount[i] = 40;
-						else if(stepCount[i] == 3 && stepCount[i+1] == 1)
+						else if(stepCount[i] == 30 && stepCount[i+1] == 10)
 							stepCount[i] = 40;
-						else if(stepCount[i+1] == 3 && stepCount[i] == 1)
+						else if(stepCount[i+1] == 30 && stepCount[i] == 10)
 							stepCount[i] = 40;
 						
 						if(stepCount[i] == 20 && stepCount[i+1] == 10 && isBlock[i] != 1 && isBlock[i+1] != 1)
