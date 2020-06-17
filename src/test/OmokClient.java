@@ -69,6 +69,7 @@ public class OmokClient extends JFrame implements Runnable{
 	{
 		panel.state.reset();
 		panel.state.mode = 1;
+		String[] buttons = {"흑", "백"};
 		int choose = JOptionPane.showOptionDialog(null, "흑과 백중 원하는 돌을 선택하세요", "흑 백 선택", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, buttons, "흑");
 		//int choose = new Random().nextInt(2);
 		if(choose == 1) {
