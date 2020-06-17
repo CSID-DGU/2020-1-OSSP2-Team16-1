@@ -743,7 +743,7 @@ class OmokPanel extends JPanel
 		&& state.getWinner() == OmokState.NONE) {	    	
 		state.playPiece(row, col);
 	    repaint();		   
-		if(state.mode == 1 && state.isSwitchOK == true)
+		if(state.mode == 1 && state.isSwitchOK == true && state.getWinner() == 0)
 		{			
 	    	int[] pointInfo = bot.choose_position();
 	    	col = pointInfo[1];
