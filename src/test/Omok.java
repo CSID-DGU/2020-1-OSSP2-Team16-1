@@ -654,9 +654,12 @@ class OmokState {
 
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1) && skip[i] == false)
-							// 북 + 남 = 5, 동 + 서 = 5, 
-					win = true;
+				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] >= 5-1) && skip[i] == false)
+							// 북 + 남 = 5, 동 + 서 = 5,
+					if(currentPlayer == BLACK && stepCount[i] == 5)
+						win = true;
+					else if(currentPlayer == WHITE)
+						win = true;
 		}
 		
 		if (win)
