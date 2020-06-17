@@ -510,7 +510,7 @@ class OmokState {
 		if(caseSum>1) {
 			return 1;
 		}
-		if(moveResultWin(stepCount) == 0) {
+		if(moveResultWin(stepCount,skip) == 0) {
 			winner = currentPlayer;
 		}
 		return 3;
@@ -650,11 +650,11 @@ class OmokState {
 			return 0;
 		return 3;
 	}*///원본코드
-	public int moveResultWin(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
+	public int moveResultWin(int[] stepCount,boolean [] Skip) {	// return값이 1,2면 false, 0이면 승자 결정.
 
 		boolean win = false;
 		for (int i=0; i<8; i++) {
-				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
+				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i]>= 5-1)&&Skip[i] == false)
 							// 북 + 남 = 5, 동 + 서 = 5, 
 					win = true;
 		}
