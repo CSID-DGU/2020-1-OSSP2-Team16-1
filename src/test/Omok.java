@@ -318,6 +318,10 @@ class OmokState {
 							skip[step] += 2;
 							continue;
 						}
+						else if(r == row -3){
+							skip[step] += 4;
+							continue;
+						}
 					}
 					step++; r = row; c = col; // in else: toTheNextStep - set r and c as first state
 				}			
@@ -343,6 +347,10 @@ class OmokState {
 						}
 						else if (r == row +2) {
 							skip[step] += 2;
+							continue;
+						}
+						else if (r == row +3) {
+							skip[step] += 4;
 							continue;
 						}
 							
@@ -371,6 +379,10 @@ class OmokState {
 							skip[step] += 2;
 							continue;
 						}
+						else if (c == col + 3) {
+							skip[step] += 4;
+							continue;
+						}
 					}
 					 step++; r = row; c = col; }
 				break;
@@ -394,6 +406,10 @@ class OmokState {
 							}
 						else if(c == col-2) {
 							skip[step] += 2;	// 맞냐?
+							continue;
+						}
+						else if(c == col-3) {
+							skip[step] += 4;	// 맞냐?
 							continue;
 						}
 					}
@@ -421,6 +437,10 @@ class OmokState {
 							skip[step] += 2;	// 맞냐?
 							continue;
 						}
+						else if(c == col+3 && r == row -3) {
+							skip[step] += 4;	// 맞냐?
+							continue;
+						}
 					}
 					 step++; r = row; c = col; }
 				break;
@@ -444,6 +464,10 @@ class OmokState {
 						}
 						else if(c == col-2 && r == row+2) {
 							skip[step] += 2;	// 맞냐?
+							continue;
+						}
+						else if(c == col-3 && r == row+3) {
+							skip[step] += 4;	// 맞냐?
 							continue;
 						}
 					}
@@ -471,6 +495,10 @@ class OmokState {
 							skip[step] += 2;	// 맞냐?
 							continue;
 						}
+						else if(c == col-3 && r == row-3) {
+							skip[step] += 4;	// 맞냐?
+							continue;
+						}
 					}
 					step++; r = row; c = col;
 				}
@@ -495,6 +523,10 @@ class OmokState {
 						}
 						else if(c == col+2 && r == row+2) {
 							skip[step] += 2;	// 맞냐?
+							continue;
+						}
+						else if(c == col+3 && r == row+3) {
+							skip[step] += 4;	// 맞냐?
 							continue;
 						}
 					}
@@ -528,7 +560,8 @@ class OmokState {
 		// 금수는 총 네개로,  oxo, xoo, oxoo, x_oo가 있다.
 		// 이 때, 금수의 끝이 막혔는지는 enemyAtEnd가 false일 때 뚫렸음을 의미한다.
 		// skip은 네번째 금수를 위한 boolean형 변수로, x_oo의 _부분을 의미한다.
-		int [] forbiddenCases = new int [6];
+		int [] forbiddenCases33 = new int [6];
+		int [] forbiddenCases44 = new int [6];
 		// 마지막에 계산할 때, forbiddenCases의 초
 		
 		for (int i=0; i<8; i++) {
@@ -536,63 +569,95 @@ class OmokState {
 			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 1)) // 첫번째 금수.
 			{
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 2&&skip[i] == 2) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
-					forbiddenCases[0]++;
+					forbiddenCases33[0]++;
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 2&&skip[i] == 1) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
-					forbiddenCases[4]++;
+					forbiddenCases33[4]++;
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 1&&skip[i] == 2) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
-					forbiddenCases[4]++;
+					forbiddenCases33[4]++;
 			}
 
 			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 두번째 금수.
 			{
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] %2 == 1&&skip[i] == 0) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
-					forbiddenCases[1]++;
+					forbiddenCases33[1]++;
 			}
 			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 두번째 금수.
 			{
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 0 && skip[i] %2 == 1) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
-					forbiddenCases[1]++;
-			}
-			
-			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 2)) // 세번째 금수.
-			{
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 2 && skip[i] == 0) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
-					forbiddenCases[2]++;
-			}
-			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 1)) // 세번째 금수.
-			{
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 0 && skip[i] == 2 ) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
-					forbiddenCases[2]++;
+					forbiddenCases33[1]++;
 			}
 
 			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 네번째 금수.
 			{
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] % 2 == 1 && skip[i] == 1) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
-					forbiddenCases[3]++;
+					forbiddenCases33[2]++;
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] %2 == 1 && skip[i] == 2) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
-					forbiddenCases[4]++;
+					forbiddenCases33[3]++;
 			}
 			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 네번째 금수.
 			{
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 1 && skip[i] %2 == 1) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
-					forbiddenCases[3]++;
+					forbiddenCases33[2]++;
 				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 2 && skip[i] %2 == 1) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
-					forbiddenCases[4]++;
+					forbiddenCases33[3]++;
 			}
 			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 2))
 			{
 				if(skip[i] == 2 && skip[i-1] == 2)
-					forbiddenCases[5] += 2;
+					forbiddenCases33[4] += 2;
 			}
 			
-			// ! 아직은 서로 맞닿는 금수의 경우를 판단하지 못하는 코드. 서로 직교하는 식으로 만날때 제대로 동작하는지 확인 할 예정. --- 한쪽이 끝나는 case 2와 case4를 망하는 부분.
+			//forbidden position 44 condition
+			
+			if(i%2 == 1 && (stepCount[i-1] == 3 && stepCount[i] == 0))
+			{
+				if(skip[i-1] == 0 && (skip[i]%4 == 3 || (skip[i] == 0 && enemyAtEnd[i])))
+					forbiddenCases44[0]++;
+				if((skip[i-1] == 1 || skip[i-1] == 2 || skip[i-1] == 4)&& (skip[i] == 3 || (enemyAtEnd[i] && skip[i] == 0)))
+					forbiddenCases44[0]++; 
+			}
+			if(i%2 == 1 && (stepCount[i] == 3 && stepCount[i-1] == 0))
+			{
+				if(skip[i] == 0 && (skip[i-1]%4 == 3 || (skip[i-1] == 0 && enemyAtEnd[i-1])))
+					forbiddenCases44[0]++;
+				if((skip[i] == 1 || skip[i] == 2 || skip[i] == 4)&& (skip[i-1] == 3 || (enemyAtEnd[i] && skip[i] == 0)))
+					forbiddenCases44[0]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 2)) // 세번째 금수.
+			{
+				if((skip[i-1]%4 == 2 || (skip[i-1] == 0 && enemyAtEnd[i-1])) && (skip[i] == 4 || (skip[i] == 0 && enemyAtEnd[i]))) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					if(!(enemyAtEnd[i-1]&&enemyAtEnd[i]))
+						forbiddenCases44[1]++;
+				if((skip[i-1] == 5 || (skip[i-1] == 1 && enemyAtEnd[i-1])) && (skip[i] == 4 || (skip[i] == 0 && enemyAtEnd[i])))
+					if(!(enemyAtEnd[i-1]&&enemyAtEnd[i]))
+						forbiddenCases44[2]++;
+				if((skip[i-1] == 6 || (skip[i-1] == 0 && enemyAtEnd[i-1]))&&skip[i] == 2)
+					forbiddenCases44[3]++;
+				if((skip[i-1] == 6 || (skip[i-1] == 0 && enemyAtEnd[i-1]))&& skip[i] == 1)
+					forbiddenCases44[3]++;
+			}
+			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 1)) // 세번째 금수.
+			{
+				if((skip[i-1] == 4 || (skip[i-1] == 0 && enemyAtEnd[i-1])) && (skip[i]%4 == 2 || (skip[i] == 0 && enemyAtEnd[i]))) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+					if(!(enemyAtEnd[i-1]&&enemyAtEnd[i]))
+						forbiddenCases44[1]++;
+				if((skip[i] == 5 || (skip[i] == 1 && enemyAtEnd[i])) && (skip[i-1] == 4 || (skip[i-1] == 0 && enemyAtEnd[i-1])))
+					if(!(enemyAtEnd[i-1]&&enemyAtEnd[i]))
+						forbiddenCases44[2]++;
+				if((skip[i] == 6 || (skip[i] == 0 && enemyAtEnd[i]))&& skip[i-1] == 2)
+					forbiddenCases44[3]++;
+				if((skip[i] == 6 || (skip[i] == 0 && enemyAtEnd[i]))&& skip[i-1] == 1)
+					forbiddenCases44[3]++;
+			}
 		}
-		int caseSum=0;
-		for(int i=0;i<6;i++) {
-			caseSum+=forbiddenCases[i];
+		int caseSum33=0;
+		int caseSum44=0;
+		for(int i=0;i<5;i++) {
+			caseSum33+=forbiddenCases33[i];
+			caseSum44+=forbiddenCases44[i];
 		}
 
-		if(caseSum>1) {
+		if(caseSum33>1 || caseSum44>1) {
 			return 1;
 		}
 		if(moveResultWin(stepCount, skip) == 0) {
