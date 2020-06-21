@@ -68,6 +68,9 @@ class MenuLine extends JMenuBar implements ActionListener {
 	private JMenuItem multiMode = new JMenuItem("Multi");
 	private JMenuItem localMode = new JMenuItem("Local");
 	private JMenuItem exitGame = new JMenuItem("exit");
+	private JMenuItem nullspace1 = new JMenuItem("");
+	private JMenuItem nullspace2 = new JMenuItem("");
+	private JMenuItem nullspace3 = new JMenuItem("");
 	
 	OmokState state = new OmokState(15);
 	OmokClient client=new OmokClient("Omok");
@@ -85,6 +88,9 @@ class MenuLine extends JMenuBar implements ActionListener {
 		exitGame.addActionListener(this);
 		
 		add(gameMenu);
+		gameMenu.add(nullspace1);
+		gameMenu.add(nullspace2);
+		gameMenu.add(nullspace3);
 		gameMenu.add(localMode);
 		gameMenu.add(singleMode);
 		gameMenu.add(multiMode);
@@ -569,22 +575,22 @@ class OmokState {
 			// 
 			if (i % 2 == 1 && (stepCount[i-1]  == 1 && stepCount[i] == 1)) // 첫번째 금수.
 			{
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 2&&skip[i] == 2) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]%4 == 2&&skip[i]%4 == 2) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
 					forbiddenCases33[0]++;
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 2&&skip[i] == 1) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]%4 == 2&&skip[i]%4 == 1) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
 					forbiddenCases33[4]++;
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 1&&skip[i] == 2) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1]%4 == 1&&skip[i]%4 == 2) // 이번에는 빈칸을 허용해도 된다. 단, 2쪽인 쪽에.
 					forbiddenCases33[4]++;
 			}
 
 			if (i % 2 == 1 && (stepCount[i-1]  == 0 && stepCount[i] == 2)) // 두번째 금수.
 			{
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] %2 == 1&&skip[i] == 0) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] %2 == 1&&skip[i] == 4) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
 					forbiddenCases33[1]++;
 			}
 			if (i % 2 == 1 && (stepCount[i-1]  == 2 && stepCount[i] == 0)) // 두번째 금수.
 			{
-				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 0 && skip[i] %2 == 1) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
+				if(!enemyAtEnd[i-1]&&!enemyAtEnd[i]&&skip[i-1] == 4 && skip[i] %2 == 1) // 양끝이 막혀있거나 빈칸을 허용한 상태면 안된다.
 					forbiddenCases33[1]++;
 			}
 
