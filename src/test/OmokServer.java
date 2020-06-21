@@ -20,8 +20,13 @@ public class OmokServer{
 
 	  try{
 
-		  server=new ServerSocket(7777);
-
+		  server=new ServerSocket();
+		  
+          InetAddress inetAddress = InetAddress.getLocalHost();
+          String localhost = inetAddress.getHostAddress();
+          System.out.println(localhost);
+          server.bind(new InetSocketAddress(localhost, 7777));
+		  
 		  System.out.println("서버소켓이 생성되었습니다.");
 
 		  while(true){
@@ -163,6 +168,11 @@ public class OmokServer{
 
               }           
            }        
+         else if(bMan.size()>2){
+        	 System.out.println("FULL");
+        	 	writer.println("[FULL]");
+             }  
+
 
         }
 
@@ -187,7 +197,7 @@ public class OmokServer{
           System.out.println("접속자 수: "+bMan.size());
 
           // 사용자가 접속을 끊었음을 같은 방에 알린다.
-
+          if(bMan.size() <= 1) 
           bMan.sendToOthers(this,"[DISCONNECT]"+userName);
 
         }catch(Exception e){}
@@ -240,6 +250,9 @@ public class OmokServer{
       }catch(Exception e){}  
 
     }
+
+
+ 
 
     // ot와 같은 방에 있는 다른 사용자에게 msg를 전달한다.
 
