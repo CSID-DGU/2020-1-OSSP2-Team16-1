@@ -660,7 +660,7 @@ class OmokState {
 		if(caseSum33>1 || caseSum44>1) {
 			return 1;
 		}
-		if(moveResultWin(stepCount, skip) == 0) {
+		if(moveResultWin(stepCount, skip, enemyAtEnd) == 0) {
 			winner = currentPlayer;
 		}
 		return 3;
@@ -800,15 +800,15 @@ class OmokState {
 			return 0;
 		return 3;
 	}*///원본코드
-	public int moveResultWin(int[] stepCount, int[] skip) {	// return값이 1,2면 false, 0이면 승자 결정.
+	public int moveResultWin(int[] stepCount, int[] skip, boolean[] enemyAtEnd) {	// return값이 1,2면 false, 0이면 승자 결정.
 
 		boolean win = false;
 		for (int i=0; i<8; i++) {
 				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] >= 5-1)) {
 							// 북 + 남 = 5, 동 + 서 = 5,
-					if(stepCount[i] == 3 && stepCount[i-1] >= 1 && skip[i] == 0 && skip[i-1] == 2);
-					else if(stepCount[i-1] == 3 && stepCount[i] >= 1 && skip[i-1] == 0 && skip[i] == 2);
-					else if(stepCount[i] == 2 && stepCount[i-1] == 2 && skip[i] == 0 && skip[i-1] == 0);
+					if(stepCount[i] == 3 && stepCount[i-1] == 1 && skip[i] == 0 && (skip[i-1]%4 == 2 || (skip[i-1] == 0 && enemyAtEnd[i-1])));
+					else if(stepCount[i-1] == 3 && stepCount[i] == 1 && skip[i-1] == 0 && (skip[i]%4 == 2 || (skip[i] == 0 && enemyAtEnd[i])));
+					else if(stepCount[i] == 2 && stepCount[i-1] == 2 && (skip[i] == 4 || (enemyAtEnd[i] && skip[i] == 0)) && (skip[i-1] == 4 || (enemyAtEnd[i-1] && enemyAtEnd[i-1])));
 					else if(stepCount[i] == 4 && stepCount[i-1] == 0 && skip[i] == 0);
 					else if(stepCount[i-1] == 4 && stepCount[i] == 0 && skip[i-1] == 0);
 					else continue;
