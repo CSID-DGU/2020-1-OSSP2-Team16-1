@@ -246,9 +246,7 @@ class OmokState {
       public void reset(){                         // 오목판을 초기화시킨다.
 
           for(int i=0;i<board.length;i++)
-
             for(int j=0;j<board[i].length;j++)
-
               board[i][j]=0;
 
           info="게임 중지";
@@ -850,7 +848,6 @@ class OmokPanel extends JPanel
                       (winner == OmokState.BLACK) ? "Black win!" : "White wins!");
 		    state.reset();
 		    repaint();
-
 		}
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
