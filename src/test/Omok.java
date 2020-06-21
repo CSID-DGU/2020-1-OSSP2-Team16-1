@@ -251,6 +251,7 @@ class OmokState {
 
           info="게임 중지";
           currentPlayer = BLACK;
+          winner = NONE;
           
           if(mode == 1) {
           String[] buttons = {"흑", "백"};
