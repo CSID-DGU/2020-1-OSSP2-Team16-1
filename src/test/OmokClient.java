@@ -98,7 +98,6 @@ public class OmokClient extends JFrame implements Runnable{
 
 	        socket=new Socket(ip, 7777);
 	        System.out.println(ip);
-	        //192.168.219.100
 	        infoView.setText("연결 성공!");
 	        System.out.println("---연결 성공--.\n");
 	        System.out.println("이름을 입력하고 대기실로 입장하세요.\n");

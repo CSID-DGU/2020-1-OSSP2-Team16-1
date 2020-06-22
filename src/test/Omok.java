@@ -97,6 +97,7 @@ class MenuLine extends JMenuBar implements ActionListener {
 		gameMenu.add(exitGame);
 	}
 
+	//set reaction when menu object is clicked.
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == localMode)
@@ -301,7 +302,9 @@ class OmokState {
 			final int boundsCheckMax = 4;
 			int boundsCheck=0;
 			switch (step) {
-			// NORTH ~ SOUTH_EAST의 경우로 각각 몇번을 가는지 테스팅 하는 케이스.
+			/* NORTH ~ SOUTH_EAST의 경우로 각각 몇번을 가는지 테스팅 하는 케이스.
+			 * skip을  증가시키는 부분은 돌과 돌 사이의 끊긴 공간을 확인하는 부분이다. 한 칸 떨어진 곳에 빈칸이 있으면 +1, 두 칸 떨어진 곳에 빈칸이 있으면 +2, 세 칸 떨어진 곳에 빈칸이 있으면 +4를 한다.
+			*/
 			case NORTH:
 				if (!outOfBounds(r-1) && sameColor(--r, c))
 					stepCount[step]++;				
@@ -318,7 +321,7 @@ class OmokState {
 					}
 					if(empty(r,c)) { // 그냥 비어서 끊겼니?
 						if (r == row -1) {// 그것도 바로 다음에 끊겼니?
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;	
 						}
 						else if(r == row -2){
@@ -348,7 +351,7 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (r == row +1) {
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;	
 								
 						}
@@ -379,7 +382,7 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1){
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;
 						}
 						else if (c == col + 2) {
@@ -408,15 +411,15 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1){
-								skip[step] += 1;	// 맞냐?
+								skip[step] += 1;	
 								continue;
 							}
 						else if(c == col-2) {
-							skip[step] += 2;	// 맞냐?
+							skip[step] += 2;	
 							continue;
 						}
 						else if(c == col-3) {
-							skip[step] += 4;	// 맞냐?
+							skip[step] += 4;	
 							continue;
 						}
 					}
@@ -437,15 +440,15 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row-1){
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;
 						}
 						else if(c == col+2 && r == row -2) {
-							skip[step] += 2;	// 맞냐?
+							skip[step] += 2;	
 							continue;
 						}
 						else if(c == col+3 && r == row -3) {
-							skip[step] += 4;	// 맞냐?
+							skip[step] += 4;	
 							continue;
 						}
 					}
@@ -466,15 +469,15 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row+1) {
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;
 						}
 						else if(c == col-2 && r == row+2) {
-							skip[step] += 2;	// 맞냐?
+							skip[step] += 2;	
 							continue;
 						}
 						else if(c == col-3 && r == row+3) {
-							skip[step] += 4;	// 맞냐?
+							skip[step] += 4;	
 							continue;
 						}
 					}
@@ -495,15 +498,15 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col-1 && r == row-1) {
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;
 						}
 						else if(c == col-2 && r == row-2) {
-							skip[step] += 2;	// 맞냐?
+							skip[step] += 2;	
 							continue;
 						}
 						else if(c == col-3 && r == row-3) {
-							skip[step] += 4;	// 맞냐?
+							skip[step] += 4;	
 							continue;
 						}
 					}
@@ -525,15 +528,15 @@ class OmokState {
 					}
 					if(empty(r,c)) {
 						if (c == col+1 && r == row+1) {
-							skip[step] += 1;	// 맞냐?
+							skip[step] += 1;	
 							continue;
 						}
 						else if(c == col+2 && r == row+2) {
-							skip[step] += 2;	// 맞냐?
+							skip[step] += 2;	
 							continue;
 						}
 						else if(c == col+3 && r == row+3) {
-							skip[step] += 4;	// 맞냐?
+							skip[step] += 4;	
 							continue;
 						}
 					}
@@ -672,81 +675,6 @@ class OmokState {
 		}
 		return 3;
 	}
-	/*public boolean validMove(int row, int col) {
-		// 	validMove가 	false면 여기에 둘 수 없다는 message를 출력한다.
-		// 				true면 진행		
-		int r = row, c = col;
-		/*
-		 * step
-		 * 수직: 0(북), 1(남)
-		 * 수평: 2(동), 3(서)
-		 * 사선: 4(동북), 5(서남), 6(서북), 7(동남)
-		 */
-		/*int step = 0;
-		int[] stepCount = new int[8];	// 오목이 성립하는 모든 조건을(8가지) 검사하는 배열
-		boolean doneCheck = false;
-		while (!doneCheck) {
-			switch (step) {
-			// if문에서는 step이 살펴볼 방향을 지정하며, r과 c를 수정하면서 순차적으로 살펴보며 놓여진 돌의 갯수를 stepCount의 결과를 낸다.
-			// else문에서는 step을 다음 단계로 지정하며, r와 c를 초기 row값으로 되돌려 놓는다.
-			// 예시. 흑돌이 놓은 자리 위에 흑돌이 셋, 아래에 흑돌이 하나 있으면 case0는 탐색 세번 = 초기화 한번, case1은 탐색 1번 초기화 
-			//													되어야 하는데.... if문 아래로 전혀 들어가지 않는다.
-			case 0:
-				if (!outOfBounds(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
-					stepCount[step]++;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
-				else { step++; r = row; c = col; }			// 문제 해결: 두 조건문 함수에는 이상X. 인수를 살펴봄 --- 이상 발견
-				break;
-			case 1:
-				if (!outOfBounds(r+1) && sameColor(++r, c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			case 2:
-				if (!outOfBounds(c+1) && sameColor(r, ++c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			case 3:
-				if (!outOfBounds(c-1) && sameColor(r, --c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			case 4:
-				if (!outOfBounds(r-1) && !outOfBounds(c+1) && sameColor(--r, ++c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			case 5:
-				if (!outOfBounds(r+1) && !outOfBounds(c-1) && sameColor(++r, --c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			case 6:
-				if (!outOfBounds(r-1) && !outOfBounds(c-1) && sameColor(--r, --c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			case 7:
-				if (!outOfBounds(r+1) && !outOfBounds(c+1) && sameColor(++r, ++c))
-					stepCount[step]++;
-				else { step++; r = row; c = col; }
-				break;
-			default:
-				doneCheck = true;
-				break;
-			}
-		}
-		// moveResult는 승자를 결정하면 0을 return, 결정되지 않았다면 1과 2를 return
-		// 1과 2는? 2는 육목일 경우. 1은 ???
-		int result = moveResult(stepCount);
-		
-		if (result == 0) winner = currentPlayer;
-		
-		if (result == 1 || result == 2)
-			return false;
-		
-		return true;
-	}*///원본
 	
 	// switch case문에서 stepCount[]를 더해주기 위한 조건 함수 2개
 	public boolean outOfBounds(int n) {
@@ -769,44 +697,7 @@ class OmokState {
 			return board[r][c] == BLACK;
 		return false;
 	}
-	
-	/*
-	 * 이기는 수(5): 0
-	 * 금수(33 혹은 44): 1
-	 * 장목(6이상): 2
-	 * 수: 3
-	 */
-	/*public int moveResult(int[] stepCount) {	// return값이 1,2면 false, 0이면 승자 결정.
-		final int checkBugOn33 = 0;
-		final int checkBugOn44 = 0;
-		int countTwo = 0, countThree = 0;
-		boolean win = false;
-		for (int i=0; i<8; i++) {
-			// 1. moveResult 2 혹은 0을 결정하는 if-else
-			if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] > 5-1)) 
-								// sc[0] + sc[1] > 5, sc[3] + sc[4] > 6 .... 
-								// -> 북+남이 6,7,8,... 동+서가 6,7,8... 이런경우 = 6목 일때 
-				return 2;		// 6목, 7목 
-			else 
-				if (i % 2 == 1 && (stepCount[i-1] + stepCount[i] == 5-1))
-								// 북 + 남 = 5, 동 + 서 = 5, 
-					win = true;
-			
-			// moveresult 1을 결정하는 if-else
-			if (stepCount[i] == 2-checkBugOn33) 
-				countTwo++;
-			else
-				if (stepCount[i] == 3-checkBugOn44) 
-					countThree++;
-		}
-		
-		// 아래는 return값을 결정하는 if문들
-		if (countTwo >= 2 || countThree >= 2)
-			return 1;
-		if (win)
-			return 0;
-		return 3;
-	}*///원본코드
+
 	public int moveResultWin(int[] stepCount, int[] skip, boolean[] enemyAtEnd) {	// return값이 1,2면 false, 0이면 승자 결정.
 
 		boolean win = false;
@@ -847,6 +738,8 @@ class OmokPanel extends JPanel
 	private Image stoneBlack = null;
 	private Image stoneWhite = null;
     private Clip clip = null;
+    private String osCheck = null;
+    private File URLOfSound1 = null;
     
     BotAlgorithm bot = null;
  
@@ -860,19 +753,41 @@ class OmokPanel extends JPanel
 	super();
 	this.size = size;
 	state = new OmokState(size);
+	osCheck = System.getProperty("os.name").toLowerCase();
+	File URLOfImage1;
+	File URLOfImage2;
+	
 	addMouseListener(new GomokuListener());
 	try {
 		//stone image URL and load
-		File URLOfImage1 = new File("image\\500px-Go_b_no_bg.svg.png");
-		File URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
 		
-		if (!URLOfImage1.canRead() && !URLOfImage2.canRead())
-		{
-			System.out.println("File doesn't exist!!\n");
+		//for window
+		if(osCheck.matches(".*windows.*")) {
+			System.out.println("Running on window...\n");
+			URLOfImage1 = new File("image\\500px-Go_b_no_bg.svg.png");
+			URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
 		}
-		else
+		
+		//for linux
+		else if(osCheck.matches(".*linux.*")) {
+			System.out.println("Running on linux...\n");
+			URLOfImage1 = new File("image/500px-Go_b_no_bg.svg.png");
+			URLOfImage2 = new File("image/500px-Go_w_no_bg.svg.png"); 
+		}
+		else {
+			URLOfImage1 = new File("image\\500px-Go_b_no_bg.svg.png");
+			URLOfImage2 = new File("image\\500px-Go_w_no_bg.svg.png"); 
+		}
+		
+		if (!URLOfImage1.canRead())
 		{
-			System.out.println("File exist!!\n");
+			System.out.println("error: file doesn't exist");
+			System.exit(0);
+		}
+		if (!URLOfImage2.canRead())
+		{
+			System.out.println("error: file doesn't exist");
+			System.exit(0);
 		}
 		
 		stoneBlack = ImageIO.read(URLOfImage1);
@@ -897,12 +812,15 @@ class OmokPanel extends JPanel
 			if(!state.enable)return;
 		}
 		
+		// set position of stone
 	    double boardWidth = Math.min(panelWidth, panelHeight) - 2 * MARGIN;
 	    double squareWidth = boardWidth / size;
 	    double pieceDiameter = PIECE_FRAC * squareWidth;
 	    double xLeft = (panelWidth - boardWidth) / 2 + MARGIN;
 	    double yTop = (panelHeight - boardWidth) / 2 + MARGIN;
-	    int col = -1, row = -1;	    
+	    int col = -1, row = -1;
+	    
+	    // mouse click point
 	    col = (int) Math.round((e.getX() - xLeft) / squareWidth - 0.5);   
 	   	row = (int) Math.round((e.getY() - yTop) / squareWidth - 0.5);
 
@@ -910,7 +828,9 @@ class OmokPanel extends JPanel
 		&& state.getPiece(row, col) == OmokState.NONE
 		&& state.getWinner() == OmokState.NONE) {	    	
 		state.playPiece(row, col);
-	    repaint();		   
+	    repaint();	
+	    
+	    //bot player's position
 		if(state.mode == 1 && state.isSwitchOK == true && state.getWinner() == 0)
 		{			
 	    	int[] pointInfo = bot.choose_position();
@@ -922,6 +842,7 @@ class OmokPanel extends JPanel
 		else if(!state.isSwitchOK)
 			state.isSwitchOK = true;
 		
+		//check winner is exist and who
 		int winner = state.getWinner();
 		if (winner != OmokState.NONE) {
 		    JOptionPane.showMessageDialog(null,
@@ -932,9 +853,12 @@ class OmokPanel extends JPanel
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
 
-		
+		//read file and make a noise of dropping stone
 		try {
-			File URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
+			if(osCheck.matches(".*windows.*"))
+				URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
+			else 
+				URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
 			
 			dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
 			clip = AudioSystem.getClip();
@@ -950,6 +874,7 @@ class OmokPanel extends JPanel
 	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 			    RenderingHints.VALUE_ANTIALIAS_ON);
 	
+	//drawing omok plate
 	double panelWidth = getWidth();
 	double panelHeight = getHeight();
 
@@ -983,6 +908,7 @@ class OmokPanel extends JPanel
 				      xLeft + offset, yTop + gridWidth));
 	}
 	
+	//drawing stone on Omok plate
 	for (int row = 0; row < size; row++) 
 	    for (int col = 0; col < size; col++) {
 		int piece = state.getPiece(row, col);

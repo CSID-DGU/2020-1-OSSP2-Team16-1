@@ -26,24 +26,23 @@ public class BotAlgorithm {
 		isFirstStep = 0;
 	}
 	
+	//set default weight for reset
 	protected void reset_bot()
 	{
 		weight[boardSize/2][boardSize/2] = 1;
 		weight[boardSize/2][boardSize/2+1] = 1;
 	}
 	
-	
+	//decide position of stone
 	protected int[] choose_position()
 	{
 		int[] result = {0, 0};
 		calcul_weight();
-		System.out.print("\n");
-		System.out.print("\n");
-		System.out.print("\n");
 		result =  calcul_defense_position();
 		return result;
 	}
 	
+	//calculate weight ( only Consider bot's stone state )
 	protected int[] calcul_weight()
 	{
 		int step = 0;
@@ -75,17 +74,15 @@ public class BotAlgorithm {
 				}
 						
 				while (!doneCheck) {
-					switch (step) {
-					// if문에서는 step이 살펴볼 방향을 지정하며, r과 c를 수정하면서 순차적으로 살펴보며 놓여진 돌의 갯수를 stepCount의 결과를 낸다.
-					// else문에서는 step을 다음 단계로 지정하며, r와 c를 초기 row값으로 되돌려 놓는다.
-					// 예시. 흑돌이 놓은 자리 위에 흑돌이 셋, 아래에 흑돌이 하나 있으면 case0는 탐색 세번 = 초기화 한번, case1은 탐색 1번 초기화 
-					//													되어야 하는데.... if문 아래로 전혀 들어가지 않는다.
+					//checking state of connected(adjacent) stone. count connected stone's number and check it is blocked 
+					//similar to validMove function
+					switch (step) {							
 					case 0:
-						if (OutOfRange(r-1) && sameColor(--r, c))	//여긴 왜 r--? 북쪽을 쭉 갈거기 때문에 --- case 0은 여러번 호출된다.
-							stepCount[step]*=5;						// if문 안으로 가질 않기 때문에 stepCount가 증가 되지 않는다 - 조건문에 문제 확인.
+						if (OutOfRange(r-1) && sameColor(--r, c))	
+							stepCount[step]*=5;						
 						else if (OutOfRange(r) && diffColor(r, c) == 1)
 						{ isBlock[step] = 1; step++; r = row; c = col;}
-						else { step++; r = row; c = col; }			// 문제 해결: 두 조건문 함수에는 이상X. 인수를 살펴봄 --- 이상 발견
+						else { step++; r = row; c = col; }			
 						break;
 					case 1:
 						if (OutOfRange(r+1) && sameColor(++r, c))
@@ -145,7 +142,9 @@ public class BotAlgorithm {
 				doneCheck = false;
 				step = 0;
 						
+				// check 3 position and 4 position. set strong value on 4 position
 				for(int i = 0; i< 8; i++) {
+					//special combination of 4
 					if(i % 2 == 0)
 					{
 						if(stepCount[i] == 25 && stepCount[i+1] == 25)
@@ -160,6 +159,8 @@ public class BotAlgorithm {
 						else if(stepCount[i] == 5 && stepCount[i+1] == 25 && isBlock[i] != 1 && isBlock[i+1] != 1)
 							stepCount[i] = 30;
 					}
+					
+					//3 and normal 4 position
 					if(isBlock[i] == 1)
 						stepCount[i] /= 2;
 					if(stepCount[i] == 1)
@@ -182,6 +183,7 @@ public class BotAlgorithm {
 					possibility[0] = row;
 				}
 				
+				//change stone position when state of new position is stronger than previous one
 				if(possibility[2] < sumOfWeight) {
 					possibility[2] = sumOfWeight;
 					possibility[1] = col;
@@ -189,13 +191,13 @@ public class BotAlgorithm {
 				}
 						
 				sumOfWeight = 0;
-				System.out.print(weight[row][col]+"\t");
 			}
-			System.out.print("\n");
 		}
 		return possibility;
 	}
 	
+	//calculate player's stone weight and add bot's stone weight
+	// almost same to calcul_weight function. only some constants of weight is different.  
 	protected int[] calcul_defense_position()
 	{
 		int step = 0;
@@ -323,13 +325,12 @@ public class BotAlgorithm {
 				}
 							
 				sumOfWeight = 0;
-				System.out.print(weight[row][col]+"\t");
 			}
-			System.out.print("\n");
 		}
 		return possibility;
 	}
 	
+	//checking adjacent stone's color is same
 	private boolean sameColor(int a, int b)
 	{
 		if(board[a][b] == botPlayer)
@@ -338,6 +339,7 @@ public class BotAlgorithm {
 			return false;
 	}
 	
+	//checking adjacent stone's color is different (except empty space)
 	private int diffColor(int a, int b)
 	{
 		if(board[a][b] != 0) {
