@@ -92,7 +92,7 @@ public class OmokClient extends JFrame implements Runnable{
 	
 	void connect(){                    // 연결
 		try{
-			String ip = JOptionPane.showInputDialog("IP");
+		String ip = JOptionPane.showInputDialog("IP");
 
 	        System.out.println("서버에 연결을 요청합니다.\n");
 
@@ -115,6 +115,7 @@ public class OmokClient extends JFrame implements Runnable{
 	        }catch(Exception e){
 
 	        	System.out.println(e+"\n\n연결 실패..\n");  
+			JOptionPane.showMessageDialog(null, "연결 실패!IP를 확인하세요!" );
 	        	System.exit(0);	        	
 	        }
     }
@@ -156,6 +157,22 @@ public class OmokClient extends JFrame implements Runnable{
 	            	my_color = "White";
 	            }
 	        }
+		else if(msg.startsWith("[WIN]")) {
+	        	JOptionPane.showMessageDialog(null, "You WIN");
+	        	infoView.setText("이겼습니다.");
+	        	panel.state.reset();
+	        	panel.repaint();
+	        	panel.state.winner = 0;
+	    		writer.println("[REROLL]");
+	        }
+	        else if(msg.startsWith("[LOSE]"))
+	        {   
+	        	JOptionPane.showMessageDialog(null, "You LOSE");
+	        	infoView.setText("졌습니다.");
+	        	panel.state.reset();
+	        	panel.repaint();
+	        	panel.state.winner = 0;
+	        }
 	        else if(msg.startsWith("[FULL]")){    
 	            	JOptionPane.showMessageDialog(null, 
 							"이미 게임중입니다.", "Message", 
@@ -163,10 +180,11 @@ public class OmokClient extends JFrame implements Runnable{
 	            	System.exit(0);	            	
 	        }
 	        else if(msg.startsWith("[DISCONNECT]")){              
-	        	  infoView.setText("상대가 나갔습니다. 승리!");
-	        	  JOptionPane.showMessageDialog(null, my_color+" wins!" );
-	        	  panel.state.setEnable(false); 			    		
-	        	  panel.state.reset();
+  			infoView.setText("상대가 나갔습니다.");
+	        	JOptionPane.showMessageDialog(null, "상대가 나갔습니다." );
+	        	panel.state.setEnable(false); 			    		
+	        	panel.state.reset();
+			panel.repaint();
 	        }
 	    }   
 	    }catch(IOException ie){}
