@@ -102,12 +102,22 @@ class MenuLine extends JMenuBar implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == localMode)
 		{
+			try {
+				client.socket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			client.game_reset();
 			client.infoView.setText("로컬모드");
 			selected = 0;
 		}
 		else if(e.getSource() == singleMode)
 		{
+			try {
+				client.socket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			client.change_player();
 			client.infoView.setText("싱글모드 - bot: "+client.panel.state.botChoose);
 			selected = 1;
