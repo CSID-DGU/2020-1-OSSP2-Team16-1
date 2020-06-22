@@ -152,7 +152,7 @@ class OmokState {
 	protected int botChoose = 0; // bot player's stone color
 	protected int board[][];
     private String info="게임 중지";           // 게임의 진행 상황을 나타내는 문자열
-    private PrintWriter writer;     
+    public PrintWriter writer;    
     
     // true이면 사용자가 돌을 놓을 수 있는 상태를 의미하고,
     // false이면 사용자가 돌을 놓을 수 없는 상태를 의미한다.
@@ -853,13 +853,18 @@ class OmokPanel extends JPanel
 			state.isSwitchOK = true;
 		
 		//check winner is exist and who
-		int winner = state.getWinner();
-		if (winner != OmokState.NONE) {
-		    JOptionPane.showMessageDialog(null,
-                      (winner == OmokState.BLACK) ? "Black win!" : "White wins!");
-		    state.reset();
-		    repaint();
+		if(state.mode != 2) {
+			int winner = state.getWinner();
+			if (winner != OmokState.NONE) {
+				JOptionPane.showMessageDialog(null,
+						(winner == OmokState.BLACK) ? "Black win!" : "White wins!");
+				state.reset();
+				repaint();
+			}
 		}
+		if(state.getWinner() != OmokState.NONE)
+			state.writer.println("[ENDGAME]");
+
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
 
