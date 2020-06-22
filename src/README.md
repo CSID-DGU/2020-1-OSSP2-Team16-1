@@ -1,8 +1,11 @@
-# original source: https://github.com/honeymouse/Omok
-# original author: 꿀쥐
-
-# contributor: Seokwon Park, Kanghyeon Jo, Boseung Yang
-# current version: 2.9
+# original source
+https://github.com/honeymouse/Omok
+# original author
+꿀쥐
+# contributor
+Seokwon Park, Kanghyeon Jo, Boseung Yang
+# current version
+2.9
 # changed state: 
 	1. update calculation of stone state infomation and add win condition
 	2. add prohibition condition of 33 and 44 position
