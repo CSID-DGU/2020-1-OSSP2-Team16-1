@@ -69,7 +69,6 @@ public class BotAlgorithm {
 				
 				if(board[row][col] != 0) {
 					weight[row][col] = -100;
-					System.out.print(weight[row][col] + "\t");
 					continue;
 				}
 						
@@ -217,7 +216,6 @@ public class BotAlgorithm {
 				c = col;
 				
 				if(board[row][col] != 0) {
-					System.out.print(weight[row][col]+"\t");
 					continue;
 				}
 				while (!doneCheck) {
