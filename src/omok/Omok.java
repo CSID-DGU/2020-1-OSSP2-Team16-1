@@ -18,9 +18,9 @@ import javax.sound.sampled.Clip;
  * * <code>오목 게임</code> - 일반룰(오목룰)을 이용하는 오목판 및 게임.
  * https://namu.wiki/w/%EC%98%A4%EB%AA%A9(%EA%B2%8C%EC%9E%84)
  *
- * 사용법: 커맨드라인에서 java Omok [<판 크기>]
- * @author 꿀쥐
- * @version 1.0
+ * 사용법: jar 파일 더블 클릭
+ * @author 박석원, 양보승, 조강현
+ * @version 2.9
  */
 public class Omok
 {
