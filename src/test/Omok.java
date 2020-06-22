@@ -88,9 +88,6 @@ class MenuLine extends JMenuBar implements ActionListener {
 		exitGame.addActionListener(this);
 		
 		add(gameMenu);
-		gameMenu.add(nullspace1);
-		gameMenu.add(nullspace2);
-		gameMenu.add(nullspace3);
 		gameMenu.add(localMode);
 		gameMenu.add(singleMode);
 		gameMenu.add(multiMode);
@@ -103,23 +100,32 @@ class MenuLine extends JMenuBar implements ActionListener {
 		if(e.getSource() == localMode)
 		{
 			try {
-				client.socket.close();
+				if(client.socket != null)
+					client.socket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 			client.game_reset();
+			client.panel.state.mode = 0;
 			client.infoView.setText("로컬모드");
 			selected = 0;
 		}
 		else if(e.getSource() == singleMode)
 		{
 			try {
-				client.socket.close();
+				if(client.socket != null)
+					client.socket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 			client.change_player();
-			client.infoView.setText("싱글모드 - bot: "+client.panel.state.botChoose);
+			if(client.panel.state.botChoose == 1)
+			{
+				client.infoView.setText("싱글모드 - bot:흑");
+			}else
+			{
+				client.infoView.setText("싱글모드 - bot:백");				
+			}
 			selected = 1;
 		}
 		else if(e.getSource() == multiMode)
