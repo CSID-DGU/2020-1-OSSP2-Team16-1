@@ -18,6 +18,7 @@ import javax.swing.*;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 
 
 /**
@@ -746,6 +747,7 @@ class OmokPanel extends JPanel
     private final int MARGIN = 5;
     private final double PIECE_FRAC = 0.9;
 
+    private boolean loadedAudio = false;
     private int size = 19;
     public OmokState state;
     
@@ -829,21 +831,32 @@ class OmokPanel extends JPanel
 		}
 		
 		//read file and make a noise of dropping stone
-			try {
-				if(osCheck.matches(".*windows.*"))
-					URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
-				else 
-					URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
+		 try {
+			 if(loadedAudio == false) {
+				 if(osCheck.matches(".*windows.*"))
+					 URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
+				 else 
+					 URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
+				 dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
+				 clip = AudioSystem.getClip(AudioSystem.getMixer(null).getMixerInfo());
+				 clip.open(dropSound);
+				 System.out.println(clip.isRunning());
+				 
+			 }
 				
-				dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
-				clip = AudioSystem.getClip(AudioSystem.getMixer(null).getMixerInfo());
-			    clip.open(dropSound);
-			    clip.start();
-			    System.out.println(clip.isRunning());
-			    }catch(Exception a){
-			    	System.out.println("error:" + a);
-			    }
+		    }
+		catch(LineUnavailableException arror) {
+//			clip.flush();
+		}catch(Exception a){
+	    	System.out.println("error:" + a);
+	    	
+	    }
+		loadedAudio=true;
+		clip.start();
+		clip.setFramePosition(0);
+
 		
+
 		// set position of stone
 	    double boardWidth = Math.min(panelWidth, panelHeight) - 2 * MARGIN;
 	    double squareWidth = boardWidth / size;
