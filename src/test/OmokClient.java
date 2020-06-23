@@ -21,7 +21,7 @@ public class OmokClient extends JFrame implements Runnable{
     private BufferedReader reader;                         // 입력 스트림
 	private PrintWriter writer;                               // 출력 스트림
 
-	private Socket socket;
+	protected Socket socket;
 	private static int mode;
 	
 	static int size = 15;

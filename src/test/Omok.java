@@ -103,7 +103,8 @@ class MenuLine extends JMenuBar implements ActionListener {
 		if(e.getSource() == localMode)
 		{
 			try {
-				client.socket.close();
+				if(client.socket != null)
+					client.socket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -114,6 +115,7 @@ class MenuLine extends JMenuBar implements ActionListener {
 		else if(e.getSource() == singleMode)
 		{
 			try {
+				if(client.socket != null)
 				client.socket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -822,6 +824,21 @@ class OmokPanel extends JPanel
 			if(!state.enable)return;
 		}
 		
+		//read file and make a noise of dropping stone
+			try {
+				if(osCheck.matches(".*windows.*"))
+					URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
+				else 
+					URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
+				
+				dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
+				clip = AudioSystem.getClip(AudioSystem.getMixer(null).getMixerInfo());
+			    clip.open(dropSound);
+			    clip.start();
+			    }catch(Exception a){
+			    	System.out.println("error:" + a);
+			    }
+		
 		// set position of stone
 	    double boardWidth = Math.min(panelWidth, panelHeight) - 2 * MARGIN;
 	    double squareWidth = boardWidth / size;
@@ -868,18 +885,7 @@ class OmokPanel extends JPanel
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
 
-		//read file and make a noise of dropping stone
-		try {
-			if(osCheck.matches(".*windows.*"))
-				URLOfSound1 = new File("sound\\350343__nettimato__tap-stone.wav");
-			else 
-				URLOfSound1 = new File("sound/350343__nettimato__tap-stone.wav");
-			
-			dropSound = AudioSystem.getAudioInputStream(URLOfSound1);
-			clip = AudioSystem.getClip();
-		    clip.open(dropSound);
-		    clip.start();
-		    }catch(Exception a){}
+		clip.stop();
 	    }
 	}    
     }
