@@ -839,6 +839,7 @@ class OmokPanel extends JPanel
 				clip = AudioSystem.getClip(AudioSystem.getMixer(null).getMixerInfo());
 			    clip.open(dropSound);
 			    clip.start();
+			    System.out.println(clip.isRunning());
 			    }catch(Exception a){
 			    	System.out.println("error:" + a);
 			    }
@@ -889,7 +890,6 @@ class OmokPanel extends JPanel
 		
 		if(state.mode == 2)OmokClient.infoView.setText("상대가 두기를 기다리는 중입니다...");
 
-		clip.stop();
 	    }
 	}    
     }
