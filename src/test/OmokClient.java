@@ -100,7 +100,6 @@ public class OmokClient extends JFrame implements Runnable{
 	        System.out.println(ip);
 	        infoView.setText("연결 성공!");
 	        System.out.println("---연결 성공--.\n");
-	        System.out.println("이름을 입력하고 대기실로 입장하세요.\n");
 
 	        reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -116,7 +115,6 @@ public class OmokClient extends JFrame implements Runnable{
 
 	        	System.out.println(e+"\n\n연결 실패..\n");  
 			JOptionPane.showMessageDialog(null, "연결 실패!IP를 확인하세요!" );
-	        	System.exit(0);	        	
 	        }
     }
 
