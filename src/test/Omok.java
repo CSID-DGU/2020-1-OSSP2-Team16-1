@@ -275,20 +275,8 @@ class OmokState {
 
           info="게임 중지";
           currentPlayer = BLACK;
-          winner = NONE;
-          
-          if(mode == 1) {
-          String[] buttons = {"흑", "백"};
-  			int choose = JOptionPane.showOptionDialog(null, "흑과 백중 원하는 돌을 선택하세요", "흑 백 선택", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, buttons, "흑");
-  			//int choose = new Random().nextInt(2);
-  			if(choose == 1) {
-  				botChoose = 1;
-  				playPiece(new Random().nextInt(2)+6,new Random().nextInt(2)+6);			
-  			}
-  			else
-  				botChoose = -1;
-  			winner = NONE;
-          }
+          winner = NONE;      
+         
       	}
   	  
 	public int getPiece(int row, int col) {
@@ -897,6 +885,28 @@ class OmokPanel extends JPanel
 				repaint();
 			}
 		}
+		if(state.mode == 1) {
+			if(state.getWinner() != OmokState.NONE)
+			{
+				int winner = state.getWinner();
+				if (winner != OmokState.NONE) 
+					JOptionPane.showMessageDialog(null,
+							(winner == OmokState.BLACK) ? "Black win!" : "White wins!");
+				state.reset();
+				repaint();
+				String[] buttons = {"흑", "백"};
+				int choose = JOptionPane.showOptionDialog(null, "흑과 백중 원하는 돌을 선택하세요", "흑 백 선택", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, buttons, "흑");
+				//int choose = new Random().nextInt(2);
+				if(choose == 1) {
+					state.botChoose = 1;
+					state.playPiece(new Random().nextInt(2)+6,new Random().nextInt(2)+6);
+					repaint();
+				}
+				else
+					state.botChoose = -1;
+				state.winner = OmokState.NONE;
+			}
+      		}
 		if(state.getWinner() != OmokState.NONE)
 			state.writer.println("[ENDGAME]");
 
